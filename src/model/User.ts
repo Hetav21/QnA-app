@@ -1,9 +1,11 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { MessageInterface, MessageSchema } from "./Message";
 
+// Regex for email validation
 const emailRegex =
   /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 
+// Type Interface for User
 export interface UserInterface extends Document {
   username: string;
   email: string;
@@ -15,6 +17,7 @@ export interface UserInterface extends Document {
   messages: MessageInterface[];
 }
 
+// User Schema for MongoDB
 const UserSchema: Schema<UserInterface> = new Schema({
   username: {
     type: String,
@@ -53,6 +56,8 @@ const UserSchema: Schema<UserInterface> = new Schema({
   messages: [MessageSchema],
 });
 
+// User Model for MongoDB
+// If model already exists, use it or create a new one
 export const UserModel =
   (mongoose.models.User as mongoose.Model<UserInterface>) ||
   mongoose.model<UserInterface>("User", UserSchema);
