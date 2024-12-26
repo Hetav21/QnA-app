@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@react-email/components": "^0.0.31",
     "bcryptjs": "^2.4.3",
     "mongoose": "^8.9.2",
     "next": "15.1.2",
