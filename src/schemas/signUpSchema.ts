@@ -1,4 +1,4 @@
-import { emailRegex, passwordRegex, usernameRegex } from "@/regex";
+import { emailRegex, passwordRegex, usernameRegex } from "@/lib/regex";
 import { z } from "zod";
 
 export const usernameValidation = z
