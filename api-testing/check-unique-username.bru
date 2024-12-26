@@ -1,0 +1,15 @@
+meta {
+  name: check-unique-username
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:3000/api/check-unique-username?username=test1
+  body: json
+  auth: none
+}
+
+params:query {
+  username: test1
+}
