@@ -1,9 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { MessageInterface, MessageSchema } from "./Message";
-
-// Regex for email validation
-const emailRegex =
-  /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
+import { emailRegex, usernameRegex, passwordRegex } from "@/regex";
 
 // Type Interface for User
 export interface UserInterface extends Document {
@@ -24,17 +21,22 @@ const UserSchema: Schema<UserInterface> = new Schema({
     required: [true, "Username is required"],
     trim: true,
     unique: true,
+    match: [
+      usernameRegex,
+      "Username must only contain letters, numbers, and underscores",
+    ],
   },
   email: {
     type: String,
     required: [true, "Email is required"],
     unique: true,
     trim: true,
-    match: [emailRegex, "Please use valid email address"],
+    match: [emailRegex, "Email must be valid"],
   },
   password: {
     type: String,
     required: [true, "Password is required"],
+    match: [passwordRegex, "Password must be valid"],
   },
   isVerified: {
     type: Boolean,
