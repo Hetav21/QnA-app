@@ -1,7 +1,7 @@
 import dbConnect from "@/lib/dbConnect";
+import { response } from "@/lib/response";
 import { UserModel } from "@/model/User";
 import { usernameValidation } from "@/schemas/signUpSchema";
-import { ApiResponse } from "@/types/ApiResponse";
 
 export async function GET(request: Request) {
   await dbConnect();
@@ -18,12 +18,13 @@ export async function GET(request: Request) {
 
       console.log(errors);
 
-      const res: ApiResponse = {
-        success: false,
-        message: errors?.length > 0 ? errors.join(", ") : "Invalid username",
-      };
-
-      return Response.json(res, { status: 400 });
+      return response(
+        {
+          success: false,
+          message: errors?.length > 0 ? errors.join(", ") : "Invalid username",
+        },
+        400,
+      );
     }
 
     const existingVerifiedUser = await UserModel.findOne({
@@ -32,27 +33,31 @@ export async function GET(request: Request) {
     });
 
     if (existingVerifiedUser) {
-      const res: ApiResponse = {
-        success: false,
-        message: "Username already exists",
-      };
-
-      return Response.json(res, { status: 400 });
+      return response(
+        {
+          success: false,
+          message: "Username already exists",
+        },
+        400,
+      );
     }
 
-    const res: ApiResponse = {
-      success: true,
-      message: "Username is available",
-    };
-
-    return Response.json(res, { status: 200 });
+    return response(
+      {
+        success: true,
+        message: "Username is available",
+      },
+      200,
+    );
   } catch (err) {
     console.error("Error checking username: ", err);
-    const res: ApiResponse = {
-      success: false,
-      message: "Internal server error",
-    };
 
-    return Response.json(res, { status: 500 });
+    return response(
+      {
+        success: false,
+        message: "Internal server error",
+      },
+      500,
+    );
   }
 }

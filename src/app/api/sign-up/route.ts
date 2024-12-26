@@ -2,8 +2,8 @@ import dbConnect from "@/lib/dbConnect";
 import { UserModel } from "@/model/User";
 import { hash } from "bcryptjs";
 import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
-import { ApiResponse } from "@/types/ApiResponse";
 import { NextRequest } from "next/server";
+import { response } from "@/lib/response";
 
 export async function POST(req: NextRequest) {
   // Waiting for database connection
@@ -21,11 +21,13 @@ export async function POST(req: NextRequest) {
     });
 
     if (existingUserVerifiedByUsername) {
-      const res: ApiResponse = {
-        success: false,
-        message: "Username already taken",
-      };
-      return Response.json(res, { status: 401 });
+      return response(
+        {
+          success: false,
+          message: "Username already taken",
+        },
+        401,
+      );
     }
 
     const existingUserByEmail = await UserModel.findOne({
@@ -39,11 +41,13 @@ export async function POST(req: NextRequest) {
     if (existingUserByEmail) {
       // and email is already verified
       if (existingUserByEmail.isVerified) {
-        const res: ApiResponse = {
-          success: false,
-          message: "Email already in use",
-        };
-        return Response.json(res, { status: 401 });
+        return response(
+          {
+            success: false,
+            message: "Email already in use",
+          },
+          401,
+        );
       } else {
         // email is not verified
 
@@ -87,24 +91,30 @@ export async function POST(req: NextRequest) {
 
     // If email failed to send
     if (!emailResponse.success) {
-      const res: ApiResponse = {
-        success: false,
-        message: "Error sending verification email: " + emailResponse.message,
-      };
-      return Response.json(res, { status: 500 });
+      return response(
+        {
+          success: false,
+          message: "Error sending verification email: " + emailResponse.message,
+        },
+        500,
+      );
     }
 
-    const res: ApiResponse = {
-      success: true,
-      message: "Verification email sent successfully",
-    };
-    return Response.json(res, { status: 200 });
+    return response(
+      {
+        success: true,
+        message: "Verification email sent successfully",
+      },
+      200,
+    );
   } catch (error) {
     console.error("Error registering user: ", error);
-    const res: ApiResponse = {
-      success: false,
-      message: "Error registering user",
-    };
-    return Response.json(res, { status: 500 });
+    return response(
+      {
+        success: false,
+        message: "Error registering user",
+      },
+      500,
+    );
   }
 }
