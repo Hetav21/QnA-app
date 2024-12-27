@@ -12,3 +12,5 @@ export const usernameRegex = /^[a-zA-Z0-9_]+$/;
 // Can contain special characters
 export const passwordRegex =
   /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
+
+export const verifyCodeRegex = /^[0-9]{6}$/;
