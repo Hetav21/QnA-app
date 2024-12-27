@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
         // Updating existing user with new password and verification code
         const hashedPassword = await hash(password, 10);
 
+        existingUserByEmail.username = username;
         existingUserByEmail.password = hashedPassword;
         existingUserByEmail.verifyCode = verifyCode;
         existingUserByEmail.verifyCodeExpiry = new Date(Date.now() + 3600000);
