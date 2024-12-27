@@ -25,18 +25,29 @@ import { Loader2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 
 const SignUpPage = () => {
+  // username state to store username
   const [username, setUsername] = useState("");
+
+  // usernameMessage state to store the ApiResponse for the username based on availability
   const [usernameMessage, setUsernameMessage] = useState<ApiResponse>({
     success: false,
     message: "",
   });
+
+  // States to block events from happening while checking username and submitting form
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Creating toasts
   const { toast } = useToast();
+
+  // To debounce the backend calls to check username availability
   const debounced = useDebounceCallback(setUsername, 500);
+
+  // To navigate to the verify page after successful sign up
   const router = useRouter();
 
+  // Custom form with username, email and password
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -46,6 +57,7 @@ const SignUpPage = () => {
     },
   });
 
+  // Checking username availability with debounced calls
   useEffect(() => {
     const checkUniqueUsername = async () => {
       if (username) {
@@ -72,6 +84,7 @@ const SignUpPage = () => {
     checkUniqueUsername();
   }, [username]);
 
+  // To handle on submit events
   const onSubmit: SubmitHandler<z.infer<typeof signUpSchema>> = async (
     data,
   ) => {
@@ -130,6 +143,7 @@ const SignUpPage = () => {
                       {...field}
                       onChange={(e) => {
                         field.onChange(e);
+                        // Debouncing the username updates
                         debounced(e.target.value);
                       }}
                     />
