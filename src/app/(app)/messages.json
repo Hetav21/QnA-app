@@ -1,0 +1,27 @@
+[
+  {
+    "title": "Message from FoodieLover",
+    "content": "What's your favorite dish to cook?",
+    "received": "5 minutes ago"
+  },
+  {
+    "title": "Message from TechGuru",
+    "content": "Have you tried the latest smartphone update?",
+    "received": "1 hour ago"
+  },
+  {
+    "title": "Message from FitnessFreak",
+    "content": "Can you share your workout routine?",
+    "received": "3 days ago"
+  },
+  {
+    "title": "Message from MovieBuff",
+    "content": "What do you think of the new blockbuster movie?",
+    "received": "6 hours ago"
+  },
+  {
+    "title": "Message from Wanderlust",
+    "content": "Any suggestions for a weekend getaway?",
+    "received": "2 days ago"
+  }
+]
