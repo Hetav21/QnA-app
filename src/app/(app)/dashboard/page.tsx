@@ -214,7 +214,7 @@ export default function Dashboard() {
         {messages.length > 0 ? (
           messages.map((message) => (
             <MessageCard
-              key={message.id}
+              key={message._id!.toString()}
               message={message}
               onMessageDeleteAction={handleDeleteMessage}
             />

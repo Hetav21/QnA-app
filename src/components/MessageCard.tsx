@@ -1,6 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,6 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 import axios, { AxiosResponse } from "axios";
 import { MessageInterface } from "@/model/Message";
 import { ApiResponse } from "@/types/ApiResponse";
+import { Label } from "./ui/label";
 
 export function MessageCard({
   message,
@@ -30,7 +37,7 @@ export function MessageCard({
 
   const handleDeleteConfirm = async () => {
     const response: AxiosResponse<ApiResponse> = await axios.delete(
-      `/api/delete-message/${message.id}`,
+      `/api/delete-message/${message._id}`,
     );
 
     toast({
@@ -44,13 +51,28 @@ export function MessageCard({
     onMessageDeleteAction(message._id);
   };
 
+  const dateTimeRightNow = new Date();
+  const createdAt = new Date(message.createdAt);
+  const timeSpent = Math.floor(
+    (dateTimeRightNow.getTime() - createdAt.getTime()) / (1000 * 60),
+  );
+
+  const time =
+    timeSpent > 24 * 60
+      ? `${Math.floor(timeSpent / (24 * 60))} days ago`
+      : Math.floor(timeSpent / 60) === 0
+        ? `${timeSpent} minutes ago`
+        : `${Math.floor(timeSpent / 60)} hours ago`;
+
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>{message.createdAt.toString()}</CardTitle>
+      <CardHeader className="flex-row justify-between">
+        <CardDescription className="content-center">
+          <Label className="text-lg">{time}</Label>
+        </CardDescription>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive">
+            <Button variant="destructive" className="self-center">
               <X className="w-5 h-5" />
             </Button>
           </AlertDialogTrigger>
@@ -71,7 +93,7 @@ export function MessageCard({
           </AlertDialogContent>
         </AlertDialog>
       </CardHeader>
-      <CardContent>{message.content}</CardContent>
+      <CardContent className="text-xl">{message.content}</CardContent>
     </Card>
   );
 }
