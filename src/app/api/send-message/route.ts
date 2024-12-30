@@ -32,10 +32,13 @@ export async function POST(req: NextRequest) {
     if (!user.isAcceptingMessages) {
       return response(
         {
-          success: false,
+          success: true,
           message: "User is not accepting messages",
+          data: {
+            isAcceptingMessages: false,
+          },
         },
-        403,
+        200,
       );
     }
 
@@ -49,6 +52,9 @@ export async function POST(req: NextRequest) {
       {
         success: true,
         message: "Message sent successfully",
+        data: {
+          isAcceptingMessages: true,
+        },
       },
       200,
     );

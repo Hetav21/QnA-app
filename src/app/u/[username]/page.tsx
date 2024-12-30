@@ -49,11 +49,22 @@ export default function UserPage() {
     );
 
     if (result.data.success) {
-      toast({
-        title: "Message sent successfully",
-        description: "Your message has been sent successfully",
-        variant: "default",
-      });
+      if (
+        result.data.data != null &&
+        result.data.data.isAcceptingMessages != null &&
+        result.data.data.isAcceptingMessages === false
+      ) {
+        toast({
+          title: "User is not accepting messages",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Message sent successfully",
+          description: "Your message has been sent successfully",
+          variant: "default",
+        });
+      }
     } else {
       toast({
         title: "Error sending message",
@@ -67,7 +78,7 @@ export default function UserPage() {
 
   return (
     <div className="flex justify-center items-center">
-      <div className="mx-28 w-full p-8 bg-white rounded-lg">
+      <div className="mx-32 max-w-6xl w-full p-8 bg-white rounded-lg">
         <div className="flex-grow flex flex-col items-center justify-center md:px-12 py-6 text-black">
           <section className="text-center mb-8 md:mb-12">
             <h1 className="text-xl md:text-4xl font-bold">
@@ -96,7 +107,9 @@ export default function UserPage() {
                 </FormItem>
               )}
             />
-            <Button type="submit">Send message now!!</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              <Label>Send message now!!</Label>
+            </Button>
           </form>
         </Form>
       </div>
