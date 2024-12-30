@@ -13,8 +13,6 @@ export async function POST(req: NextRequest) {
   // Extracting user session
   const session = await getServerSession(authOptions);
 
-  const user: User = session?.user as User;
-
   // If no session found
   if (!session || !session.user) {
     return response(
@@ -25,6 +23,9 @@ export async function POST(req: NextRequest) {
       401,
     );
   }
+
+  // Extracting user from session
+  const user = session?.user;
 
   // Extracting user id, stringified mongo id
   const userId = user._id;

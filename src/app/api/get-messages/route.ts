@@ -3,7 +3,7 @@ import dbConnect from "@/lib/dbConnect";
 import { response } from "@/lib/response";
 import { UserModel } from "@/model/User";
 import mongoose from "mongoose";
-import { User, getServerSession } from "next-auth";
+import { getServerSession } from "next-auth";
 
 export async function GET() {
   // wait for db connection
@@ -11,8 +11,6 @@ export async function GET() {
 
   // Extracting user session
   const session = await getServerSession(authOptions);
-
-  const user: User = session?.user as User;
 
   // If no session found
   if (!session || !session.user) {
@@ -24,6 +22,9 @@ export async function GET() {
       401,
     );
   }
+
+  // Extracting user from session
+  const user = session?.user;
 
   // Converting the string to Mongo ObjectId
   const userId = new mongoose.Types.ObjectId(user._id);
@@ -39,13 +40,16 @@ export async function GET() {
     ]);
 
     // If no messages found
-    if (!user || user.length === 0) {
+    if (!user || user.length === 0 || user[0].messages.length === 0) {
       return response(
         {
-          success: false,
+          success: true,
           message: "No messages found",
+          data: {
+            messages: [],
+          },
         },
-        401,
+        200,
       );
     }
 

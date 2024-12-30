@@ -24,13 +24,13 @@ export function MessageCard({
   onMessageDeleteAction,
 }: {
   message: MessageInterface;
-  onMessageDeleteAction: (messsageId: MessageInterface["_id"]) => void;
+  onMessageDeleteAction: (messsageId: MessageInterface["id"]) => void;
 }) {
   const { toast } = useToast();
 
   const handleDeleteConfirm = async () => {
     const response: AxiosResponse<ApiResponse> = await axios.delete(
-      `/api/delete-message/${message._id}`,
+      `/api/delete-message/${message.id}`,
     );
 
     toast({
