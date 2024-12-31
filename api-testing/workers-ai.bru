@@ -1,0 +1,18 @@
+meta {
+  name: workers-ai
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:8787/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "prompt": "Test prompt"
+  }
+  
+}
