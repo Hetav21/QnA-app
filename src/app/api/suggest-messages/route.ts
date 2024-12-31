@@ -1,5 +1,8 @@
 import { response } from "@/lib/response";
-import { text } from "@/models/openai";
+// import { text } from "@/models/openai";
+import { prompt } from "@/models/prompts/default";
+import { get_worker_ai } from "@/models/workers-ai";
+import { ModelsResponse } from "@/types/ModelsResponse";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -11,13 +14,25 @@ export async function POST() {
   try {
     // TODO: Return text based on model selection
     // Depending on given apis and model selected by user
-    return response(
-      {
-        success: true,
-        message: text,
-      },
-      200,
-    );
+    const res: ModelsResponse = await get_worker_ai(prompt);
+
+    if (res.success) {
+      return response(
+        {
+          success: true,
+          message: res.text,
+        },
+        200,
+      );
+    } else {
+      return response(
+        {
+          success: false,
+          message: "Error getting messages",
+        },
+        500,
+      );
+    }
   } catch (err) {
     console.error("Error suggesting messages: " + err);
     return response(

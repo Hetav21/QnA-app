@@ -1,0 +1,18 @@
+meta {
+  name: suggest-messages
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:3000/api/suggest-messages
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "test1",
+    "code": "502613"
+  }
+}
