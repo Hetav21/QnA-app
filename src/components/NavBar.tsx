@@ -23,7 +23,7 @@ export function NavBar() {
           // Session based redirection
           href={session ? "/dashboard" : "/"}
         >
-          Anonymous Feedback
+          Anonymous QnA
         </Link>
         {
           // Session based rendering of Login or Logout

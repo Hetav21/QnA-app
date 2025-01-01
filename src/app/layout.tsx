@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Anonymous Feedback",
+  title: "Anonymous QnA",
   description: "made with <3",
 };
 
