@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { MessageInterface, MessageSchema } from "./Message";
-import { emailRegex, usernameRegex, passwordRegex } from "@/lib/regex";
+import { emailRegex, usernameRegex, passwordRegex } from "@/static/regex";
 
 // Type Interface for User
 export interface UserInterface extends Document {
