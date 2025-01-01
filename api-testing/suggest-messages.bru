@@ -4,7 +4,7 @@ meta {
   seq: 5
 }
 
-post {
+get {
   url: http://localhost:3000/api/suggest-messages
   body: json
   auth: none
@@ -12,7 +12,5 @@ post {
 
 body:json {
   {
-    "username": "test1",
-    "code": "502613"
   }
 }

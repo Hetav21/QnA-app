@@ -1,6 +1,5 @@
 import { response } from "@/lib/response";
-// import { text } from "@/models/openai";
-import { prompt } from "@/models/prompts/default";
+import { prompt } from "@/static/prompts/default";
 import { get_worker_ai } from "@/models/workers-ai";
 import { ModelsResponse } from "@/types/ModelsResponse";
 
@@ -10,7 +9,7 @@ export const maxDuration = 30;
 // Set the runtime to edge
 export const runtime = "edge";
 
-export async function POST() {
+export async function GET() {
   try {
     // TODO: Return text based on model selection
     // Depending on given apis and model selected by user
@@ -20,7 +19,10 @@ export async function POST() {
       return response(
         {
           success: true,
-          message: res.text,
+          message: "Messages suggested successfully",
+          data: {
+            text: res.text,
+          },
         },
         200,
       );

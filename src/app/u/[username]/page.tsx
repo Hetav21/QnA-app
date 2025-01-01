@@ -7,7 +7,7 @@ import { ApiResponse } from "@/types/ApiResponse";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios, { AxiosResponse } from "axios";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import { Card, CardTitle, CardContent } from "@/components/ui/card";
+import { sanitizeString } from "@/lib/sanitizeString";
+import { getRandomNumbers } from "@/lib/randomizer";
+import { staticSuggestedMessages } from "@/static/staticSuggestedMessages";
 
 export default function UserPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -28,6 +32,93 @@ export default function UserPage() {
 
   const { toast } = useToast();
 
+  const [isSuggesting, setIsSuggesting] = useState<boolean>(false);
+
+  // Method to get random static suggested messages
+  function getStaticSuggestedMessages(n: number): string[] {
+    const res: string[] = [];
+
+    const nums = getRandomNumbers(n, 0, staticSuggestedMessages.length);
+
+    console.log(staticSuggestedMessages.length);
+    console.log(nums);
+    for (let i = 0; i < n; i++) {
+      res.push(staticSuggestedMessages[nums[i]]);
+    }
+
+    return res;
+  }
+  const [suggestedMessages, setSuggestedMessages] = useState<string[]>([]);
+
+  // To convert LLM response string to array of strings
+  function stringToArray(input: string): string[] {
+    try {
+      return JSON.parse(input).split("||");
+    } catch (err) {
+      if (err instanceof SyntaxError) {
+        console.log("Caught a SyntaxError, attempting to convert to string.");
+        return JSON.parse(String(input)).split("||"); // Fallback to string conversion
+      } else return [];
+    }
+  }
+
+  // Method to fetch suggested messages from the backend
+  const getSuggestedMessages = async () => {
+    try {
+      // Fetch suggested messages from the backend
+      const result: AxiosResponse<ApiResponse> = await axios.get(
+        "/api/suggest-messages",
+      );
+
+      if (result.data.success) {
+        // If the request is successful
+        const { response } = JSON.parse(
+          sanitizeString(result.data.data!.text!),
+        );
+
+        const sanitizedString = sanitizeString(response.split("\n")[2]);
+
+        const res = stringToArray(sanitizedString);
+
+        toast({
+          title: "Messages suggested successfully",
+          description: "Messages have been suggested successfully",
+          variant: "default",
+        });
+
+        return {
+          success: true,
+          messages: res,
+        };
+      } else {
+        // If the request is unsuccessful
+        toast({
+          title: "Error fetching suggested messages",
+          description: result.data.message,
+          variant: "destructive",
+        });
+
+        return {
+          success: false,
+          messages: [],
+        };
+      }
+    } catch (err) {
+      // In case of faliure
+      console.error("Error in suggesting messages: " + err);
+      toast({
+        title: "Error fetching suggested messages",
+        description: "An error occurred while fetching suggested messages",
+        variant: "destructive",
+      });
+      return {
+        success: false,
+        messages: [],
+      };
+    }
+  };
+
+  // Form to extract message content and send it to the backend
   const form = useForm<z.infer<typeof messageSchema>>({
     resolver: zodResolver(messageSchema),
     defaultValues: {
@@ -35,11 +126,13 @@ export default function UserPage() {
     },
   });
 
+  // Method to handle form submission
   const onSubmit: SubmitHandler<z.infer<typeof messageSchema>> = async (
     data,
   ) => {
     setIsSubmitting(true);
 
+    // Send message and username to the backend
     const result: AxiosResponse<ApiResponse> = await axios.post(
       "/api/send-message",
       {
@@ -48,17 +141,21 @@ export default function UserPage() {
       },
     );
 
+    // Handle the response from the backend
     if (result.data.success) {
+      // In case of successfull response
       if (
         result.data.data != null &&
         result.data.data.isAcceptingMessages != null &&
         result.data.data.isAcceptingMessages === false
       ) {
+        // If the user is not accepting messages
         toast({
           title: "User is not accepting messages",
           variant: "destructive",
         });
       } else {
+        // If the user is accepting messages
         toast({
           title: "Message sent successfully",
           description: "Your message has been sent successfully",
@@ -66,6 +163,7 @@ export default function UserPage() {
         });
       }
     } else {
+      // In case of faliure
       toast({
         title: "Error sending message",
         description: result.data.message,
@@ -75,6 +173,26 @@ export default function UserPage() {
 
     setIsSubmitting(false);
   };
+
+  // Method to handle Suggest Messages button
+  const onSuggest = async () => {
+    setIsSuggesting(true);
+
+    const result: {
+      success: boolean;
+      messages: string[];
+    } = await getSuggestedMessages();
+
+    setSuggestedMessages(result.messages);
+
+    setIsSuggesting(false);
+  };
+
+  // New Messages are suggested on page load
+  // replaces default messages i.e []
+  useEffect(() => {
+    setSuggestedMessages(getStaticSuggestedMessages(3));
+  }, []);
 
   return (
     <div className="flex justify-center items-center">
@@ -86,6 +204,7 @@ export default function UserPage() {
             </h1>
           </section>
         </div>
+        {/* Main form to handle messages and content */}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
@@ -112,6 +231,26 @@ export default function UserPage() {
             </Button>
           </form>
         </Form>
+        {/* Suggested Messages */}
+        <Card className="mt-10">
+          <CardTitle className="text-center m-8">Suggested Messages</CardTitle>
+          <CardContent>
+            {suggestedMessages.map((message, index) => {
+              return (
+                <Card key={index}>
+                  <CardContent className="p-4 text-center">
+                    {message}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </CardContent>
+          <div className="w-full flex justify-center pb-4">
+            <Button onClick={onSuggest} disabled={isSuggesting}>
+              Suggest new messages
+            </Button>
+          </div>
+        </Card>
       </div>
     </div>
   );
