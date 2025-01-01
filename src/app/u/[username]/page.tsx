@@ -133,7 +133,9 @@ export default function UserPage() {
     setIsSuggesting(true);
 
     try {
-      await complete(prompt);
+      await complete(
+        prompt + "suggest something different from: " + completion,
+      );
     } catch (err) {
       console.error("Error fetching messages: " + err);
     }
@@ -218,7 +220,7 @@ export default function UserPage() {
           </CardContent>
           <div className="w-full flex justify-center pb-4">
             <Button onClick={onSuggest} disabled={isSuggesting}>
-              Suggest new messages!!
+              Suggest messages!!
             </Button>
           </div>
         </Card>

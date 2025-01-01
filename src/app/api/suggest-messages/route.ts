@@ -10,6 +10,5 @@ export const runtime = "edge";
 export async function POST(req: NextRequest) {
   const { prompt }: { prompt: string } = await req.json();
 
-  const model = res(prompt);
-  return model.toDataStreamResponse();
+  return res(prompt).toDataStreamResponse();
 }
