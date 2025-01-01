@@ -1,4 +1,4 @@
-import { verifyCodeRegex } from "@/lib/regex";
+import { verifyCodeRegex } from "@/static/regex";
 import { z } from "zod";
 
 export const verifySchema = z.object({
