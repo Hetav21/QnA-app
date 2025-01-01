@@ -7,7 +7,7 @@ import { ApiResponse } from "@/types/ApiResponse";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios, { AxiosResponse } from "axios";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -26,13 +26,23 @@ import { getRandomNumbers } from "@/lib/randomizer";
 import { staticSuggestedMessages } from "@/static/staticSuggestedMessages";
 
 export default function UserPage() {
+  // Handles textarea
+  const [text, setText] = useState<string>("");
+
+  // Handles main form submission button
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const params = useParams<{ username: string }>();
+  // Handles Suggest Messages button
+  const [isSuggesting, setIsSuggesting] = useState<boolean>(false);
 
+  // Handles suggested messages
+  const [suggestedMessages, setSuggestedMessages] = useState<string[]>([]);
+
+  // Creating toasts
   const { toast } = useToast();
 
-  const [isSuggesting, setIsSuggesting] = useState<boolean>(false);
+  // To get the username from the URL
+  const params = useParams<{ username: string }>();
 
   // Method to get random static suggested messages
   function getStaticSuggestedMessages(n: number): string[] {
@@ -40,15 +50,12 @@ export default function UserPage() {
 
     const nums = getRandomNumbers(n, 0, staticSuggestedMessages.length);
 
-    console.log(staticSuggestedMessages.length);
-    console.log(nums);
     for (let i = 0; i < n; i++) {
       res.push(staticSuggestedMessages[nums[i]]);
     }
 
     return res;
   }
-  const [suggestedMessages, setSuggestedMessages] = useState<string[]>([]);
 
   // To convert LLM response string to array of strings
   function stringToArray(input: string): string[] {
@@ -123,6 +130,9 @@ export default function UserPage() {
     resolver: zodResolver(messageSchema),
     defaultValues: {
       content: "",
+    },
+    values: {
+      content: text.trim(),
     },
   });
 
@@ -217,9 +227,15 @@ export default function UserPage() {
                   </FormLabel>
                   <FormControl>
                     <Textarea
+                      disabled={isSubmitting}
+                      {...field}
+                      value={text}
+                      onChange={(e) => {
+                        setText(e.target.value);
+                        field.onChange(e);
+                      }}
                       placeholder="Enter your message here"
                       className="w-full"
-                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -237,9 +253,17 @@ export default function UserPage() {
           <CardContent>
             {suggestedMessages.map((message, index) => {
               return (
-                <Card key={index}>
-                  <CardContent className="p-4 text-center">
-                    {message}
+                <Card className="m-2 hover:bg-gray-200" key={index}>
+                  <CardContent
+                    className="p-4 text-center"
+                    onClick={() => {
+                      setText((text) => {
+                        if (text === "") return message;
+                        return text + " " + message;
+                      });
+                    }}
+                  >
+                    <Label>{message}</Label>
                   </CardContent>
                 </Card>
               );
@@ -247,7 +271,7 @@ export default function UserPage() {
           </CardContent>
           <div className="w-full flex justify-center pb-4">
             <Button onClick={onSuggest} disabled={isSuggesting}>
-              Suggest new messages
+              Suggest new messages!!
             </Button>
           </div>
         </Card>
