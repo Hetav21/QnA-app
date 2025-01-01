@@ -50,7 +50,7 @@ export default function UserPage() {
   const params = useParams<{ username: string }>();
 
   // Handles suggested messages
-  const { completion, complete } = useCompletion({
+  const { completion, complete, error } = useCompletion({
     api: "/api/suggest-messages",
     initialCompletion: suggestedMessages,
   });
@@ -138,6 +138,8 @@ export default function UserPage() {
       );
     } catch (err) {
       console.error("Error fetching messages: " + err);
+      // In case of error, suggested messages are static
+      setSuggestedMessages(getStaticSuggestedMessages(numberOfMessages));
     }
 
     setIsSuggesting(false);
@@ -200,23 +202,26 @@ export default function UserPage() {
         <Card className="mt-10">
           <CardTitle className="text-center m-8">Suggested Messages</CardTitle>
           <CardContent>
-            {parseCompletions(completion).map((message, index) => {
-              return (
-                <Card className="m-2 hover:bg-gray-200" key={index}>
-                  <CardContent
-                    className="p-4 text-center"
-                    onClick={() => {
-                      setText((text) => {
-                        if (text === "") return message;
-                        return text + " " + message;
-                      });
-                    }}
-                  >
-                    <Label>{message}</Label>
-                  </CardContent>
-                </Card>
-              );
-            })}
+            {/* In case of error show static suggested messages, otherwise show completions */}
+            {parseCompletions(!error ? completion : suggestedMessages).map(
+              (message, index) => {
+                return (
+                  <Card className="m-2 hover:bg-gray-200" key={index}>
+                    <CardContent
+                      className="p-4 text-center"
+                      onClick={() => {
+                        setText((text) => {
+                          if (text === "") return message;
+                          return text + " " + message;
+                        });
+                      }}
+                    >
+                      <Label>{message}</Label>
+                    </CardContent>
+                  </Card>
+                );
+              },
+            )}
           </CardContent>
           <div className="w-full flex justify-center pb-4">
             <Button onClick={onSuggest} disabled={isSuggesting}>
