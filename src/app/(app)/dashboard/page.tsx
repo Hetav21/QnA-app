@@ -151,8 +151,13 @@ export default function Dashboard() {
   // Creating a profile url to accept messages
   // Extracting username from session to create profile url
   const { username } = session.user;
-  // TODO: Get the best method to retrieve the base url
-  const baseUrl = `${window.location.protocol}//${window.location.host}`;
+
+  // Extracting base url from window location
+  const url = new URL(window.location.href);
+  const baseUrl = url.origin;
+  // const baseUrl = `${window.location.protocol}//${window.location.host}`;
+
+  // Creating a profile url
   const profileUrl = `${baseUrl}/u/${username}`;
 
   // Method to copy the profile url to clipboard
