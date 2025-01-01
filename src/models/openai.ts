@@ -1,20 +1,13 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { generateText } from "ai";
-import { prompt } from "./prompts/default";
+import { streamText } from "ai";
 
 const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  compatibility: "strict", // strict mode, enable when using the OpenAI API
 });
 
-export const { text } = await generateText({
-  // Change model based on preference
-  model: openai("gpt-4-turbo"),
-  prompt,
-  experimental_providerMetadata: {
-    openai: {
-      reasoningEffort: "low",
-      maxCompletionTokens: 300,
-    },
-  },
-});
+export default function res(prompt: string) {
+  return streamText({
+    model: openai("gpt-4o-mini"),
+    prompt,
+  });
+}

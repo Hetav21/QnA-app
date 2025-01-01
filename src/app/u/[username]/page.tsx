@@ -1,16 +1,7 @@
 "use client";
 
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { messageSchema } from "@/schemas/messageSchema";
-import { ApiResponse } from "@/types/ApiResponse";
-import { zodResolver } from "@hookform/resolvers/zod";
-import axios, { AxiosResponse } from "axios";
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -19,11 +10,25 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardTitle, CardContent } from "@/components/ui/card";
-import { sanitizeString } from "@/lib/sanitizeString";
+import { useToast } from "@/hooks/use-toast";
 import { getRandomNumbers } from "@/lib/randomizer";
+import { messageSchema } from "@/schemas/messageSchema";
+import {
+  numberOfMessages,
+  prompt,
+  specialCharacter,
+} from "@/static/prompts/default";
 import { staticSuggestedMessages } from "@/static/staticSuggestedMessages";
+import { ApiResponse } from "@/types/ApiResponse";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useCompletion } from "ai/react";
+import axios, { AxiosResponse } from "axios";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { z } from "zod";
 
 export default function UserPage() {
   // Handles textarea
@@ -36,7 +41,7 @@ export default function UserPage() {
   const [isSuggesting, setIsSuggesting] = useState<boolean>(false);
 
   // Handles suggested messages
-  const [suggestedMessages, setSuggestedMessages] = useState<string[]>([]);
+  const [suggestedMessages, setSuggestedMessages] = useState<string>("");
 
   // Creating toasts
   const { toast } = useToast();
@@ -44,86 +49,25 @@ export default function UserPage() {
   // To get the username from the URL
   const params = useParams<{ username: string }>();
 
+  // Handles suggested messages
+  const { completion, complete } = useCompletion({
+    api: "/api/suggest-messages",
+    initialCompletion: suggestedMessages,
+  });
+
   // Method to get random static suggested messages
-  function getStaticSuggestedMessages(n: number): string[] {
-    const res: string[] = [];
+  function getStaticSuggestedMessages(n: number): string {
+    let res: string = "";
 
     const nums = getRandomNumbers(n, 0, staticSuggestedMessages.length);
 
     for (let i = 0; i < n; i++) {
-      res.push(staticSuggestedMessages[nums[i]]);
+      res += staticSuggestedMessages[nums[i]];
+      if (i < n - 1) res += specialCharacter;
     }
 
     return res;
   }
-
-  // To convert LLM response string to array of strings
-  function stringToArray(input: string): string[] {
-    try {
-      return JSON.parse(input).split("||");
-    } catch (err) {
-      if (err instanceof SyntaxError) {
-        console.log("Caught a SyntaxError, attempting to convert to string.");
-        return JSON.parse(String(input)).split("||"); // Fallback to string conversion
-      } else return [];
-    }
-  }
-
-  // Method to fetch suggested messages from the backend
-  const getSuggestedMessages = async () => {
-    try {
-      // Fetch suggested messages from the backend
-      const result: AxiosResponse<ApiResponse> = await axios.get(
-        "/api/suggest-messages",
-      );
-
-      if (result.data.success) {
-        // If the request is successful
-        const { response } = JSON.parse(
-          sanitizeString(result.data.data!.text!),
-        );
-
-        const sanitizedString = sanitizeString(response.split("\n")[2]);
-
-        const res = stringToArray(sanitizedString);
-
-        toast({
-          title: "Messages suggested successfully",
-          description: "Messages have been suggested successfully",
-          variant: "default",
-        });
-
-        return {
-          success: true,
-          messages: res,
-        };
-      } else {
-        // If the request is unsuccessful
-        toast({
-          title: "Error fetching suggested messages",
-          description: result.data.message,
-          variant: "destructive",
-        });
-
-        return {
-          success: false,
-          messages: [],
-        };
-      }
-    } catch (err) {
-      // In case of faliure
-      console.error("Error in suggesting messages: " + err);
-      toast({
-        title: "Error fetching suggested messages",
-        description: "An error occurred while fetching suggested messages",
-        variant: "destructive",
-      });
-      return {
-        success: false,
-        messages: [],
-      };
-    }
-  };
 
   // Form to extract message content and send it to the backend
   const form = useForm<z.infer<typeof messageSchema>>({
@@ -188,20 +132,23 @@ export default function UserPage() {
   const onSuggest = async () => {
     setIsSuggesting(true);
 
-    const result: {
-      success: boolean;
-      messages: string[];
-    } = await getSuggestedMessages();
-
-    setSuggestedMessages(result.messages);
+    try {
+      await complete(prompt);
+    } catch (err) {
+      console.error("Error fetching messages: " + err);
+    }
 
     setIsSuggesting(false);
+  };
+
+  const parseCompletions = (completions: string): string[] => {
+    return completions.split(specialCharacter);
   };
 
   // New Messages are suggested on page load
   // replaces default messages i.e []
   useEffect(() => {
-    setSuggestedMessages(getStaticSuggestedMessages(3));
+    setSuggestedMessages(getStaticSuggestedMessages(numberOfMessages));
   }, []);
 
   return (
@@ -251,7 +198,7 @@ export default function UserPage() {
         <Card className="mt-10">
           <CardTitle className="text-center m-8">Suggested Messages</CardTitle>
           <CardContent>
-            {suggestedMessages.map((message, index) => {
+            {parseCompletions(completion).map((message, index) => {
               return (
                 <Card className="m-2 hover:bg-gray-200" key={index}>
                   <CardContent
