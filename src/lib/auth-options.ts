@@ -1,8 +1,9 @@
-import { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/dbConnect";
 import { UserModel } from "@/model/User";
+import bcrypt from "bcryptjs";
+import { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -56,8 +57,55 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
   ],
   callbacks: {
+    async signIn({ user, account, profile }) {
+      // If the user is signing in with credentials
+      if (account?.provider === "credentials") {
+        return true;
+      }
+
+      // If the user is signing in with Google
+      if (account?.provider === "google") {
+        try {
+          // Waiting for db to connect
+          await dbConnect();
+
+          // Finding the user from db
+          const dbUser = await UserModel.findOne({
+            email: profile!.email,
+          });
+
+          // If the user is found
+          if (!dbUser) {
+            throw new Error("No user found!! Please sign up");
+          }
+
+          // If the user is not verified
+          if (!dbUser.isVerified) {
+            throw new Error("Please verify your account before logging in");
+          }
+
+          // Adding new fields to the user
+          user._id = dbUser._id?.toString();
+          user.username = dbUser.username;
+          user.isVerified = dbUser.isVerified;
+          user.isAcceptingMessages = dbUser.isAcceptingMessages;
+
+          // Return true on successful sign in
+          return true;
+        } catch (err) {
+          throw new Error("Server side error: " + err);
+        }
+      }
+
+      // If the user is not signing in with credentials or google
+      return false;
+    },
     async jwt({ token, user }) {
       // Adding new fields to the token
       if (user) {

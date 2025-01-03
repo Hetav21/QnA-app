@@ -1,12 +1,6 @@
 "use client";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
-import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
 
+import "@/../styles/signin-with-google.css";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -18,10 +12,18 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
-import { signInSchema } from "@/schemas/signInSchema";
-import { signIn } from "next-auth/react";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
+import { signInSchema } from "@/schemas/signInSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import { signIn } from "next-auth/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { z } from "zod";
 
 const SignInPage = () => {
   // States to block events from happening while checking username and submitting form
@@ -128,7 +130,7 @@ const SignInPage = () => {
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" className="text-sm" disabled={isSubmitting}>
               {isSubmitting ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin">
                   Please Wait
@@ -139,6 +141,29 @@ const SignInPage = () => {
             </Button>
           </form>
         </Form>
+        <div className="w-full inline-flex items-center">
+          <Separator className="shrink" />
+          <Label className="font-light italic">OR</Label>
+          <Separator className="shrink" />
+        </div>
+
+        <Button
+          className="signin-with-google-btn text-md w-full"
+          type="submit"
+          disabled={isSubmitting}
+          onClick={() => {
+            setIsSubmitting(true);
+            signIn("google");
+            setIsSubmitting(false);
+          }}
+        >
+          {isSubmitting ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin">Please Wait</Loader2>
+          ) : (
+            "Signin with Google"
+          )}
+        </Button>
+
         <div className="text-center mt-4">
           <p>
             Not a member?{" "}
