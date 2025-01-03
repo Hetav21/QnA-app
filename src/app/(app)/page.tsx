@@ -54,7 +54,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="text-center p-4 md:p-6 bg-black text-white">
-        © 2024 Anonymous QnA. All rights reserved.
+        © {new Date().getFullYear()} Anonymous QnA. All rights reserved.
       </footer>
     </>
   );
