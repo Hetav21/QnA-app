@@ -2,6 +2,7 @@
 
 import { MessageCardPublic } from "@/components/MessageCardPublic";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { copyToClipboard } from "@/lib/copyToClipboard";
@@ -73,6 +74,9 @@ export default function UserPage() {
     fetchMessages();
   }, [fetchMessages]);
 
+  const answeredMessages = messages.filter((message) => message.reply !== "");
+  const unansweredMessages = messages.filter((message) => message.reply === "");
+
   // Creating a profile url to accept messages
   // Extracting username from session to create profile url
   const username = params.username;
@@ -124,13 +128,39 @@ export default function UserPage() {
           <RefreshCcw className="h-4 w-4" />
         )}
       </Button>
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-        {messages.length > 0 ? (
-          messages.map((message) => (
-            <MessageCardPublic
+      {answeredMessages.length !== 0 && (
+        <Label className="block text-3xl italic mt-6 mb-2 font-semibold">
+          Answered Questions:
+        </Label>
+      )}
+      <div className="flex flex-col gap-6">
+        {answeredMessages.length > 0 ? (
+          answeredMessages.map((message) => (
+            <div
               key={message._id!.toString()}
-              message={message}
-            />
+              className="flex-1 min-w-[calc(50%-12px)] md:min-w-[calc(50%-12px)]"
+            >
+              <MessageCardPublic message={message} />
+            </div>
+          ))
+        ) : (
+          <p>No messages to display.</p>
+        )}
+      </div>
+      {unansweredMessages.length !== 0 && (
+        <Label className="block text-3xl italic mt-6 mb-2 font-semibold">
+          Unanswered Questions:
+        </Label>
+      )}
+      <div className="flex flex-col gap-6">
+        {unansweredMessages.length > 0 ? (
+          unansweredMessages.map((message) => (
+            <div
+              key={message._id!.toString()}
+              className="flex-1 min-w-[calc(50%-12px)] md:min-w-[calc(50%-12px)]"
+            >
+              <MessageCardPublic message={message} />
+            </div>
           ))
         ) : (
           <p>No messages to display.</p>

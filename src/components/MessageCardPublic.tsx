@@ -30,7 +30,7 @@ export function MessageCardPublic({ message }: { message: MessageInterface }) {
   const { toast } = useToast();
 
   return (
-    <Card>
+    <Card className="mb-auto">
       <CardHeader className="flex-row justify-between">
         <CardDescription className="content-center">
           <Label className="text-lg">{time}</Label>

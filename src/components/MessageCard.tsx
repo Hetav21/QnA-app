@@ -73,7 +73,7 @@ export function MessageCard({ message }: { message: MessageInterface }) {
   const time = calculateTime(message.createdAt);
 
   return (
-    <Card>
+    <Card className="mb-auto">
       <CardHeader className="flex-row justify-between">
         <CardDescription className="content-center">
           <Label className="text-lg">{time}</Label>
