@@ -49,7 +49,7 @@ export function MessageCardPublic({ message }: { message: MessageInterface }) {
           onClick={() => {
             debouncedCopyToClipboard(message.reply);
           }}
-          className="text-lg pb-4 pr-2 mr-2"
+          className="text-xl pb-4 pr-2 mr-2"
         >
           <Separator className="mb-4" />
           <Label className="text-xl underline">Response</Label>

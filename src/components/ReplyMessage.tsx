@@ -20,9 +20,16 @@ import { z } from "zod";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 
-export function ReplyMessage({ message }: { message: MessageInterface }) {
+export function ReplyMessage({
+  isPressed,
+  setIsPressed,
+  message,
+}: {
+  isPressed: boolean;
+  setIsPressed: React.Dispatch<React.SetStateAction<boolean>>;
+  message: MessageInterface;
+}) {
   const { toast } = useToast();
-  const [isPressed, setIsPressed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Using the context to update the message reply

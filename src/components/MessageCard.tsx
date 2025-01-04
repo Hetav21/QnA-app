@@ -30,12 +30,15 @@ import { ReplyMessage } from "./ReplyMessage";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
+import { useState } from "react";
 
 export function MessageCard({ message }: { message: MessageInterface }) {
   const { toast } = useToast();
 
   // Using the context to delete the message
   const { onMessageDeleteAction } = useMessageContext();
+
+  const [isReplyPressed, setIsReplyPressed] = useState<boolean>(false);
 
   // Debouncing the copy to clipboard function
   const debouncedCopyToClipboard = useDebounceCallback((toCopy: string) => {
@@ -105,18 +108,22 @@ export function MessageCard({ message }: { message: MessageInterface }) {
         {message.content}
       </CardContent>
       {/* Show message reply only if reply exists */}
-      {message.reply && message.reply !== "" && (
+      {!isReplyPressed && message.reply && message.reply !== "" && (
         <CardContent
           onClick={() => {
             debouncedCopyToClipboard(message.reply);
           }}
-          className="text-lg pb-4 pr-2 mr-2"
+          className="text-xl pb-4 pr-2 mr-2"
         >
           <Separator className="mb-4" />
           {message.reply}
         </CardContent>
       )}
-      <ReplyMessage message={message} />
+      <ReplyMessage
+        isPressed={isReplyPressed}
+        setIsPressed={setIsReplyPressed}
+        message={message}
+      />
     </Card>
   );
 }
