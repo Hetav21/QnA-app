@@ -30,10 +30,7 @@ import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 
-export default function UserPage() {
-  // Handles textarea
-  const [text, setText] = useState<string>("");
-
+export default function UserQuestionPage() {
   // Handles main form submission button
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -75,57 +72,68 @@ export default function UserPage() {
     defaultValues: {
       content: "",
     },
-    values: {
-      content: text.trim(),
-    },
   });
+
+  // To watch if the form content is changed
+  // Used to disable the submit button if form content is empty
+  const messageContent = form.watch("content");
 
   // Method to handle form submission
   const onSubmit: SubmitHandler<z.infer<typeof messageSchema>> = async (
     data,
   ) => {
     setIsSubmitting(true);
+    try {
+      // Send message and username to the backend
+      const result: AxiosResponse<ApiResponse> = await axios.post(
+        "/api/send-message",
+        {
+          username: params.username,
+          content: data.content,
+        },
+      );
 
-    // Send message and username to the backend
-    const result: AxiosResponse<ApiResponse> = await axios.post(
-      "/api/send-message",
-      {
-        username: params.username,
-        content: data.content,
-      },
-    );
-
-    // Handle the response from the backend
-    if (result.data.success) {
-      // In case of successfull response
-      if (
-        result.data.data != null &&
-        result.data.data.isAcceptingMessages != null &&
-        result.data.data.isAcceptingMessages === false
-      ) {
-        // If the user is not accepting messages
+      // Handle the response from the backend
+      if (result.data.success) {
+        // In case of successfull response
+        if (
+          result.data.data != null &&
+          result.data.data.isAcceptingMessages != null &&
+          result.data.data.isAcceptingMessages === false
+        ) {
+          // If the user is not accepting messages
+          toast({
+            title: "User is not accepting messages",
+            variant: "destructive",
+          });
+        } else {
+          // If the user is accepting messages
+          toast({
+            title: "Message sent successfully",
+            description: "Your message has been sent successfully",
+            variant: "default",
+          });
+          form.reset({ ...form.getValues(), content: "" });
+        }
+      } else {
+        // In case of faliure
         toast({
-          title: "User is not accepting messages",
+          title: "Error sending message",
+          description: result.data.message,
           variant: "destructive",
         });
-      } else {
-        // If the user is accepting messages
-        toast({
-          title: "Message sent successfully",
-          description: "Your message has been sent successfully",
-          variant: "default",
-        });
       }
-    } else {
-      // In case of faliure
+    } catch (err) {
+      // In case of error
+      console.error("Error sending message: ", err);
       toast({
         title: "Error sending message",
-        description: result.data.message,
+        description: "Failed to send message",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
   };
 
   // Method to handle Suggest Messages button
@@ -180,11 +188,6 @@ export default function UserPage() {
                     <Textarea
                       disabled={isSubmitting}
                       {...field}
-                      value={text}
-                      onChange={(e) => {
-                        setText(e.target.value);
-                        field.onChange(e);
-                      }}
                       placeholder="Enter your message here"
                       className="w-full"
                     />
@@ -193,7 +196,7 @@ export default function UserPage() {
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting || !messageContent}>
               <Label>Send message now!!</Label>
             </Button>
           </form>
@@ -210,10 +213,7 @@ export default function UserPage() {
                     <CardContent
                       className="p-4 text-center"
                       onClick={() => {
-                        setText((text) => {
-                          if (text === "") return message;
-                          return text + " " + message;
-                        });
+                        form.setValue("content", message);
                       }}
                     >
                       <Label>{message}</Label>

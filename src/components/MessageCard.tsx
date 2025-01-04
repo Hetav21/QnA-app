@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/card";
 import { useMessageContext } from "@/context/MessageContext";
 import { useToast } from "@/hooks/use-toast";
+import { calculateTime } from "@/lib/calculateRelativeTime";
+import { copyToClipboard } from "@/lib/copyToClipboard";
 import { MessageInterface } from "@/model/Message";
 import { ApiResponse } from "@/types/ApiResponse";
 import axios, { AxiosResponse } from "axios";
@@ -53,19 +55,7 @@ export function MessageCard({ message }: { message: MessageInterface }) {
     onMessageDeleteAction(message._id);
   };
 
-  // Calculating the time spent since message creation
-  const dateTimeRightNow = new Date();
-  const createdAt = new Date(message.createdAt);
-  const timeSpent = Math.floor(
-    (dateTimeRightNow.getTime() - createdAt.getTime()) / (1000 * 60),
-  );
-
-  const time =
-    timeSpent > 24 * 60
-      ? `${Math.floor(timeSpent / (24 * 60))} days ago`
-      : Math.floor(timeSpent / 60) === 0
-        ? `${timeSpent} minutes ago`
-        : `${Math.floor(timeSpent / 60)} hours ago`;
+  const time = calculateTime(message.createdAt);
 
   return (
     <Card>
@@ -96,13 +86,31 @@ export function MessageCard({ message }: { message: MessageInterface }) {
           </AlertDialogContent>
         </AlertDialog>
       </CardHeader>
-      <CardContent className="text-xl pb-4 pr-2 mr-2">
+      <CardContent
+        onClick={() => {
+          copyToClipboard(message.content);
+          toast({
+            title: "Copied to clipboard",
+            variant: "default",
+          });
+        }}
+        className="text-xl pb-4 pr-2 mr-2"
+      >
         {message.content}
       </CardContent>
       {/* Show message reply only if reply exists */}
       {message.reply && message.reply !== "" && (
-        <CardContent className="text-lg pb-4 pr-2 mr-2">
-          <Separator />
+        <CardContent
+          onClick={() => {
+            copyToClipboard(message.reply);
+            toast({
+              title: "Copied to clipboard",
+              variant: "default",
+            });
+          }}
+          className="text-lg pb-4 pr-2 mr-2"
+        >
+          <Separator className="mb-4" />
           {message.reply}
         </CardContent>
       )}

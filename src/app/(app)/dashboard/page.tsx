@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useMessageContext } from "@/context/MessageContext";
 import { useToast } from "@/hooks/use-toast";
+import { copyToClipboard } from "@/lib/copyToClipboard";
 import { acceptMessageSchema } from "@/schemas/acceptMessageSchema";
 import { ApiResponse } from "@/types/ApiResponse";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -161,17 +162,6 @@ export default function Dashboard() {
   // Creating a profile url
   const profileUrl = `${baseUrl}/u/${username}`;
 
-  // Method to copy the profile url to clipboard
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(profileUrl);
-
-    toast({
-      title: "Copied to clipboard",
-      description: "Your profile link has been copied to clipboard",
-      variant: "default",
-    });
-  };
-
   return (
     <div className="my-8 mx-4 md:mx-8 lg:mx-auto p-6 bg-white rounded w-full max-w-6xl">
       <h1 className="text-4xl font-bold mb-4">User Dashboard</h1>
@@ -185,7 +175,18 @@ export default function Dashboard() {
             disabled
             className="input input-bordered w-full p-2 mr-2"
           />
-          <Button onClick={copyToClipboard}>Copy</Button>
+          <Button
+            onClick={() => {
+              copyToClipboard(profileUrl);
+              toast({
+                title: "Copied to clipboard",
+                description: "Profile link has been copied to clipboard",
+                variant: "default",
+              });
+            }}
+          >
+            Copy
+          </Button>
         </div>
       </div>
 
@@ -216,7 +217,7 @@ export default function Dashboard() {
           <RefreshCcw className="h-4 w-4" />
         )}
       </Button>
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 place-items-start auto-rows-auto">
+      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
         {messages.length > 0 ? (
           messages.map((message) => (
             <MessageCard key={message._id!.toString()} message={message} />
