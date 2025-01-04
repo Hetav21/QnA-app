@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/form";
 import { useMessageContext } from "@/context/MessageContext";
 import { useToast } from "@/hooks/use-toast";
+import { parseMessage } from "@/lib/parseMessage";
 import { MessageInterface } from "@/model/Message";
 import { replySchema } from "@/schemas/replySchema";
 import { ApiResponse } from "@/types/ApiResponse";
@@ -42,7 +43,7 @@ export function ReplyMessage({
   const form = useForm<z.infer<typeof replySchema>>({
     resolver: zodResolver(replySchema),
     defaultValues: {
-      reply: message.reply || "",
+      reply: message.reply !== "" ? parseMessage(message.reply) : message.reply,
     },
   });
 
@@ -57,13 +58,13 @@ export function ReplyMessage({
         {
           username: session?.user.username,
           messageId: message._id,
-          reply: data.reply,
+          reply: JSON.stringify(data.reply),
         },
       );
       res.data.success = response.data.success;
 
       // Updating messages state
-      onReplyMessageAction(message._id, data.reply);
+      onReplyMessageAction(message._id, JSON.stringify(data.reply));
 
       toast({
         title: response.data.success

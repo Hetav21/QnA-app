@@ -9,6 +9,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { calculateTime } from "@/lib/calculateRelativeTime";
 import { copyToClipboard } from "@/lib/copyToClipboard";
+import { displayMessage } from "@/lib/displayMessages";
+import { parseMessage } from "@/lib/parseMessage";
 import { MessageInterface } from "@/model/Message";
 import { useDebounceCallback } from "usehooks-ts";
 import { Label } from "./ui/label";
@@ -36,25 +38,25 @@ export function MessageCardPublic({ message }: { message: MessageInterface }) {
       </CardHeader>
       <CardContent
         onClick={() => {
-          debouncedCopyToClipboard(message.content);
+          debouncedCopyToClipboard(parseMessage(message.content));
         }}
         className="text-xl pb-4 pr-2 mr-2"
       >
         <Label className="text-xl underline">Question</Label>
         <Label className="text-xl">: </Label>
-        {message.content}
+        {displayMessage(message.content)}
       </CardContent>
       {message.reply && message.reply !== "" && (
         <CardContent
           onClick={() => {
-            debouncedCopyToClipboard(message.reply);
+            debouncedCopyToClipboard(parseMessage(message.reply));
           }}
           className="text-xl pb-4 pr-2 mr-2"
         >
           <Separator className="mb-4" />
           <Label className="text-xl underline">Response</Label>
           <Label className="text-xl">: </Label>
-          {message.reply}
+          {displayMessage(message.reply)}
         </CardContent>
       )}
     </Card>

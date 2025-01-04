@@ -89,7 +89,7 @@ export default function UserQuestionPage() {
         "/api/send-message",
         {
           username: params.username,
-          content: data.content,
+          content: JSON.stringify(data.content),
         },
       );
 

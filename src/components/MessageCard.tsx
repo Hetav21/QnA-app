@@ -21,16 +21,18 @@ import { useMessageContext } from "@/context/MessageContext";
 import { useToast } from "@/hooks/use-toast";
 import { calculateTime } from "@/lib/calculateRelativeTime";
 import { copyToClipboard } from "@/lib/copyToClipboard";
+import { displayMessage } from "@/lib/displayMessages";
+import { parseMessage } from "@/lib/parseMessage";
 import { MessageInterface } from "@/model/Message";
 import { ApiResponse } from "@/types/ApiResponse";
 import axios, { AxiosResponse } from "axios";
 import { X } from "lucide-react";
+import { useState } from "react";
 import { useDebounceCallback } from "usehooks-ts";
 import { ReplyMessage } from "./ReplyMessage";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
-import { useState } from "react";
 
 export function MessageCard({ message }: { message: MessageInterface }) {
   const { toast } = useToast();
@@ -101,22 +103,22 @@ export function MessageCard({ message }: { message: MessageInterface }) {
       </CardHeader>
       <CardContent
         onClick={() => {
-          debouncedCopyToClipboard(message.content);
+          debouncedCopyToClipboard(parseMessage(message.content));
         }}
         className="text-xl pb-4 pr-2 mr-2"
       >
-        {message.content}
+        {displayMessage(message.content)}
       </CardContent>
       {/* Show message reply only if reply exists */}
       {!isReplyPressed && message.reply && message.reply !== "" && (
         <CardContent
           onClick={() => {
-            debouncedCopyToClipboard(message.reply);
+            debouncedCopyToClipboard(parseMessage(message.reply));
           }}
           className="text-xl pb-4 pr-2 mr-2"
         >
           <Separator className="mb-4" />
-          {message.reply}
+          <div>{displayMessage(message.reply)}</div>
         </CardContent>
       )}
       <ReplyMessage
