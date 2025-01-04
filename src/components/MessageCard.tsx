@@ -1,12 +1,6 @@
 "use client";
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-} from "@/components/ui/card";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -17,24 +11,32 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "./ui/button";
-import { X } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+} from "@/components/ui/card";
+import { useMessageContext } from "@/context/MessageContext";
 import { useToast } from "@/hooks/use-toast";
-import axios, { AxiosResponse } from "axios";
 import { MessageInterface } from "@/model/Message";
 import { ApiResponse } from "@/types/ApiResponse";
+import axios, { AxiosResponse } from "axios";
+import { X } from "lucide-react";
+import { ReplyMessage } from "./ReplyMessage";
+import { Button } from "./ui/button";
 import { Label } from "./ui/label";
+import { Separator } from "./ui/separator";
 
-export function MessageCard({
-  message,
-  onMessageDeleteAction,
-}: {
-  message: MessageInterface;
-  onMessageDeleteAction: (messsageId: MessageInterface["id"]) => void;
-}) {
+export function MessageCard({ message }: { message: MessageInterface }) {
   const { toast } = useToast();
 
+  // Using the context to delete the message
+  const { onMessageDeleteAction } = useMessageContext();
+
+  // Method to confir before deletion
   const handleDeleteConfirm = async () => {
+    // Sending backend request to delete message
     const response: AxiosResponse<ApiResponse> = await axios.delete(
       `/api/delete-message/${message._id}`,
     );
@@ -47,9 +49,11 @@ export function MessageCard({
       variant: response.data.success ? "default" : "destructive",
     });
 
+    // Updating the context state
     onMessageDeleteAction(message._id);
   };
 
+  // Calculating the time spent since message creation
   const dateTimeRightNow = new Date();
   const createdAt = new Date(message.createdAt);
   const timeSpent = Math.floor(
@@ -92,7 +96,17 @@ export function MessageCard({
           </AlertDialogContent>
         </AlertDialog>
       </CardHeader>
-      <CardContent className="text-xl">{message.content}</CardContent>
+      <CardContent className="text-xl pb-4 pr-2 mr-2">
+        {message.content}
+      </CardContent>
+      {/* Show message reply only if reply exists */}
+      {message.reply && message.reply !== "" && (
+        <CardContent className="text-lg pb-4 pr-2 mr-2">
+          <Separator />
+          {message.reply}
+        </CardContent>
+      )}
+      <ReplyMessage message={message} />
     </Card>
   );
 }

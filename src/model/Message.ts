@@ -4,6 +4,7 @@ import { Schema, Document } from "mongoose";
 export interface MessageInterface extends Document {
   content: string;
   createdAt: Date;
+  reply: string;
 }
 
 // Message Schema for MongoDB
@@ -16,5 +17,9 @@ export const MessageSchema: Schema<MessageInterface> = new Schema({
     type: Date,
     default: Date.now,
     required: true,
+  },
+  reply: {
+    type: String,
+    default: "",
   },
 });

@@ -4,8 +4,8 @@ import { MessageCard } from "@/components/MessageCard";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { useMessageContext } from "@/context/MessageContext";
 import { useToast } from "@/hooks/use-toast";
-import { MessageInterface } from "@/model/Message";
 import { acceptMessageSchema } from "@/schemas/acceptMessageSchema";
 import { ApiResponse } from "@/types/ApiResponse";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,16 +17,13 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 export default function Dashboard() {
-  const [messages, setMessages] = useState<MessageInterface[]>([]);
+  // Using the context to handle message state
+  const { messages, setMessages } = useMessageContext();
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSwitchLoading, setIsSwitchLoading] = useState<boolean>(false);
 
   const { toast } = useToast();
-
-  const handleDeleteMessage = (messageId: MessageInterface["id"]) => {
-    // Filters out the message with the given message id
-    setMessages(messages.filter((message) => message._id !== messageId));
-  };
 
   // Fetching the session
   const { data: session } = useSession();
@@ -39,6 +36,7 @@ export default function Dashboard() {
     },
   });
 
+  // form to handle accept messages switch
   const { register, watch, setValue } = form;
 
   const acceptMessages = watch("acceptMessages");
@@ -115,8 +113,10 @@ export default function Dashboard() {
     fetchAcceptMessage();
   }, [session, setValue, fetchAcceptMessage, fetchMessages]);
 
+  // Changes the accept messages status of the switch and sends backend request
   const handleSwitchChange = async () => {
     try {
+      // backend request to update accept messages state
       const response: AxiosResponse<ApiResponse> = await axios.post(
         "/api/accept-messages",
         {
@@ -124,6 +124,7 @@ export default function Dashboard() {
         },
       );
 
+      // Update the accept messages state for the user
       setValue("acceptMessages", !acceptMessages);
 
       toast({
@@ -215,14 +216,10 @@ export default function Dashboard() {
           <RefreshCcw className="h-4 w-4" />
         )}
       </Button>
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 place-items-start auto-rows-auto">
         {messages.length > 0 ? (
           messages.map((message) => (
-            <MessageCard
-              key={message._id!.toString()}
-              message={message}
-              onMessageDeleteAction={handleDeleteMessage}
-            />
+            <MessageCard key={message._id!.toString()} message={message} />
           ))
         ) : (
           <p>No messages to display.</p>

@@ -174,7 +174,7 @@ export default function UserPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="pl-1 font-bold text-lg">
-                    Send message to u/{params.username}
+                    Send question to u/{params.username}
                   </FormLabel>
                   <FormControl>
                     <Textarea
