@@ -25,6 +25,7 @@ import { MessageInterface } from "@/model/Message";
 import { ApiResponse } from "@/types/ApiResponse";
 import axios, { AxiosResponse } from "axios";
 import { X } from "lucide-react";
+import { useDebounceCallback } from "usehooks-ts";
 import { ReplyMessage } from "./ReplyMessage";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
@@ -35,6 +36,15 @@ export function MessageCard({ message }: { message: MessageInterface }) {
 
   // Using the context to delete the message
   const { onMessageDeleteAction } = useMessageContext();
+
+  // Debouncing the copy to clipboard function
+  const debouncedCopyToClipboard = useDebounceCallback((toCopy: string) => {
+    copyToClipboard(toCopy);
+    toast({
+      title: "Copied to clipboard",
+      variant: "default",
+    });
+  }, 500);
 
   // Method to confir before deletion
   const handleDeleteConfirm = async () => {
@@ -88,11 +98,7 @@ export function MessageCard({ message }: { message: MessageInterface }) {
       </CardHeader>
       <CardContent
         onClick={() => {
-          copyToClipboard(message.content);
-          toast({
-            title: "Copied to clipboard",
-            variant: "default",
-          });
+          debouncedCopyToClipboard(message.content);
         }}
         className="text-xl pb-4 pr-2 mr-2"
       >
@@ -102,11 +108,7 @@ export function MessageCard({ message }: { message: MessageInterface }) {
       {message.reply && message.reply !== "" && (
         <CardContent
           onClick={() => {
-            copyToClipboard(message.reply);
-            toast({
-              title: "Copied to clipboard",
-              variant: "default",
-            });
+            debouncedCopyToClipboard(message.reply);
           }}
           className="text-lg pb-4 pr-2 mr-2"
         >

@@ -11,11 +11,22 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import { Loader2, RefreshCcw } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { useDebounceCallback } from "usehooks-ts";
 
 export default function UserPage() {
   // Using the context to handle message state
   const [messages, setMessages] = useState<MessageInterface[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // Debouncing the copy to clipboard function
+  const debouncedCopyToClipboard = useDebounceCallback((toCopy) => {
+    copyToClipboard(toCopy);
+    toast({
+      title: "Copied to clipboard",
+      description: "Profile link has been copied to clipboard",
+      variant: "default",
+    });
+  }, 500);
 
   // Extracting username from the url params
   const params = useParams<{ username: string }>();
@@ -89,12 +100,7 @@ export default function UserPage() {
           />
           <Button
             onClick={() => {
-              copyToClipboard(profileUrl);
-              toast({
-                title: "Copied to clipboard",
-                description: "Profile link has been copied to clipboard",
-                variant: "default",
-              });
+              debouncedCopyToClipboard(profileUrl);
             }}
           >
             Copy

@@ -15,6 +15,7 @@ import { Loader2, RefreshCcw } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useDebounceCallback } from "usehooks-ts";
 import { z } from "zod";
 
 export default function Dashboard() {
@@ -41,6 +42,16 @@ export default function Dashboard() {
   const { register, watch, setValue } = form;
 
   const acceptMessages = watch("acceptMessages");
+
+  // Debouncing the copy to clipboard function
+  const debouncedCopyToClipboard = useDebounceCallback(() => {
+    copyToClipboard(profileUrl);
+    toast({
+      title: "Copied to clipboard",
+      description: "Profile link has been copied to clipboard",
+      variant: "default",
+    });
+  }, 500);
 
   // Fetching the accept messages status
   const fetchAcceptMessage = useCallback(async () => {
@@ -177,12 +188,7 @@ export default function Dashboard() {
           />
           <Button
             onClick={() => {
-              copyToClipboard(profileUrl);
-              toast({
-                title: "Copied to clipboard",
-                description: "Profile link has been copied to clipboard",
-                variant: "default",
-              });
+              debouncedCopyToClipboard();
             }}
           >
             Copy
