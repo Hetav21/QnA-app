@@ -1,0 +1,27 @@
+{
+  "incorrectPassword": {
+    "message": "Incorrect password. Please try again.",
+    "redirectUrl": "/login",
+    "code": 401
+  },
+  "userNotVerified": {
+    "message": "User not verified. Please verify your account before logging in.",
+    "redirectUrl": "/verify",
+    "code": 403
+  },
+  "userNotFound": {
+    "message": "User not found. Please sign up.",
+    "redirectUrl": "/sign-up",
+    "code": 404
+  },
+  "internalServerError": {
+    "message": "Internal server error. Please try again later.",
+    "redirectUrl": "/",
+    "code": 500
+  },
+  "serverSideError": {
+    "message": "Server-side error. Bad gateway or service unavailable.",
+    "redirectUrl": "/",
+    "code": 502
+  }
+}

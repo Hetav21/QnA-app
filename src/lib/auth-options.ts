@@ -1,7 +1,8 @@
 import dbConnect from "@/lib/dbConnect";
 import { UserModel } from "@/model/User";
+import authErrors from "@/static/authErrors.json";
 import bcrypt from "bcryptjs";
-import { NextAuthOptions } from "next-auth";
+import { NextAuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
@@ -12,11 +13,17 @@ export const authOptions: NextAuthOptions = {
       name: "Credentials",
       // Defining the credentials to be used for signing in
       credentials: {
-        email: { label: "Email", type: "text" },
+        identifier: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
       // Authorize logic to validate the credentials
-      async authorize(credentials: any): Promise<any> {
+      async authorize(
+        credentials: Record<"identifier" | "password", string> | undefined,
+      ): Promise<User | null> {
+        if (!credentials) {
+          throw new Error("Invalid credentials provided");
+        }
+
         // Waiting for db to connect
         await dbConnect();
         try {
@@ -46,7 +53,7 @@ export const authOptions: NextAuthOptions = {
 
           if (isPasswordCorrect) {
             // If password is correct
-            return user;
+            return user as User;
           } else {
             // If password is incorrect
             throw new Error("Incorrect password");
@@ -80,14 +87,16 @@ export const authOptions: NextAuthOptions = {
             email: profile!.email,
           });
 
-          // If the user is found
+          // If the user is not found
           if (!dbUser) {
-            throw new Error("No user found!! Please sign up");
+            const authError = authErrors.userNotFound;
+            return `/auth/error?errCode=${authError.code}&errMessage=${encodeURIComponent(authError.message)}&url=${authError.redirectUrl}`;
           }
 
           // If the user is not verified
           if (!dbUser.isVerified) {
-            throw new Error("Please verify your account before logging in");
+            const authError = authErrors.userNotVerified;
+            return `/auth/error?errCode=${authError.code}&errMessage=${encodeURIComponent(authError.message)}&url=${authError.redirectUrl}/${dbUser.username}`;
           }
 
           // Adding new fields to the user
@@ -99,12 +108,16 @@ export const authOptions: NextAuthOptions = {
           // Return true on successful sign in
           return true;
         } catch (err) {
-          throw new Error("Server side error: " + err);
+          // Server side errors
+          console.error(err);
+          const authError = authErrors.internalServerError;
+          return `/auth/error?errCode=${authError.code}&errMessage=${encodeURIComponent(authError.message)}&url=${authError.redirectUrl}`;
         }
       }
 
       // If the user is not signing in with credentials or google
-      return false;
+      const authError = authErrors.serverSideError;
+      return `/auth/error?errCode=${authError.code}&errMessage=${encodeURIComponent(authError.message)}&url=${authError.redirectUrl}`;
     },
     async jwt({ token, user }) {
       // Adding new fields to the token
