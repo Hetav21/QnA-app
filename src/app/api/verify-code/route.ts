@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
           message:
             "Verification code expired, please sign in again to get a new code",
         },
-        400,
+        200,
       );
     } else {
       //  Code is incorrect
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
           success: false,
           message: "Invalid verification code",
         },
-        400,
+        200,
       );
     }
   } catch (err) {
