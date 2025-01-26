@@ -81,7 +81,7 @@ The project structure is organized as follows:
 
 ## Acknowledgement:
 
-<a href="https://icons8.com/icons/set/favicon">icons8.com</a> for favicon <br />
+<a href="https://icons8.com/icons/set/favicon">Icons8</a> for favicon <br />
 <a href="https://www.privacypolicies.com/">PrivacyPolicies</a> for privacy policy <br />
 <a href="https://termly.io/">Termly</a> for terms of service <br />
 
