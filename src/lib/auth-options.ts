@@ -60,7 +60,7 @@ export const authOptions: NextAuthOptions = {
           }
         } catch (err) {
           // Server side errors
-          throw new Error(("Server side error: " + err) as string);
+          throw new Error(err as string);
         }
       },
     }),

@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Storing reply in message
-    user.messages.id(messageId).reply = reply;
+    message.reply = reply;
     await user.save();
 
     // on success
