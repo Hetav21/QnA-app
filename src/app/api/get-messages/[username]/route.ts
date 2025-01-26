@@ -3,10 +3,15 @@ import { response } from "@/lib/response";
 import { UserModel } from "@/model/User";
 import { NextRequest } from "next/server";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { username: string } },
-) {
+type Props = {
+  params: Promise<{
+    username: string;
+  }>;
+};
+
+export async function GET(req: NextRequest, props: Props) {
+  const params = await props.params;
+
   // wait for db connection
   await dbConnect();
 

@@ -6,10 +6,15 @@ import mongoose from "mongoose";
 import { User, getServerSession } from "next-auth";
 import { NextRequest } from "next/server";
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { messageid: string } },
-) {
+type Props = {
+  params: Promise<{
+    messageid: string;
+  }>;
+};
+
+export async function DELETE(req: NextRequest, props: Props) {
+  const params = await props.params;
+
   // Extracting message id
   const messageId = new mongoose.Types.ObjectId(params.messageid);
 
