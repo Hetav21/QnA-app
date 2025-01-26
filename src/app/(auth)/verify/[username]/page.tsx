@@ -103,24 +103,26 @@ const VerificationPage = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <InputOTP
-                        maxLength={6}
-                        // Only accepts digits
-                        pattern={REGEXP_ONLY_DIGITS}
-                        {...field}
-                      >
-                        <InputOTPGroup>
-                          <InputOTPSlot index={0} />
-                          <InputOTPSlot index={1} />
-                          <InputOTPSlot index={2} />
-                        </InputOTPGroup>
-                        <InputOTPSeparator />
-                        <InputOTPGroup>
-                          <InputOTPSlot index={3} />
-                          <InputOTPSlot index={4} />
-                          <InputOTPSlot index={5} />
-                        </InputOTPGroup>
-                      </InputOTP>
+                      <div className="flex justify-center">
+                        <InputOTP
+                          maxLength={6}
+                          // Only accepts digits
+                          pattern={REGEXP_ONLY_DIGITS}
+                          {...field}
+                        >
+                          <InputOTPGroup>
+                            <InputOTPSlot index={0} />
+                            <InputOTPSlot index={1} />
+                            <InputOTPSlot index={2} />
+                          </InputOTPGroup>
+                          <InputOTPSeparator />
+                          <InputOTPGroup>
+                            <InputOTPSlot index={3} />
+                            <InputOTPSlot index={4} />
+                            <InputOTPSlot index={5} />
+                          </InputOTPGroup>
+                        </InputOTP>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
