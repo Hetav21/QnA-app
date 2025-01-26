@@ -31,7 +31,7 @@ export function MessageCardPublic({ message }: { message: MessageInterface }) {
 
   return (
     <Card className="mb-auto">
-      <CardHeader className="flex-row justify-between">
+      <CardHeader className="flex-row justify-between pb-2">
         <CardDescription className="content-center">
           <Label className="text-lg">{time}</Label>
         </CardDescription>
@@ -42,8 +42,10 @@ export function MessageCardPublic({ message }: { message: MessageInterface }) {
         }}
         className="text-xl pb-4 pr-2 mr-2"
       >
-        <Label className="text-xl underline">Question</Label>
-        <Label className="text-xl">: </Label>
+        <div className="pb-1">
+          <Label className="text-xl underline">Question</Label>
+          <Label className="text-xl">: </Label>
+        </div>
         {displayMessage(message.content)}
       </CardContent>
       {message.reply && message.reply !== "" && (
@@ -54,8 +56,10 @@ export function MessageCardPublic({ message }: { message: MessageInterface }) {
           className="text-xl pb-4 pr-2 mr-2"
         >
           <Separator className="mb-4" />
-          <Label className="text-xl underline">Response</Label>
-          <Label className="text-xl">: </Label>
+          <div className="pb-1">
+            <Label className="text-xl underline">Response</Label>
+            <Label className="text-xl">: </Label>
+          </div>
           {displayMessage(message.reply)}
         </CardContent>
       )}

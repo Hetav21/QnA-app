@@ -114,27 +114,36 @@ export default function UserPage() {
 
       <Separator />
 
-      <Button
-        className="mt-4"
-        variant="outline"
-        onClick={(e) => {
-          e.preventDefault();
-          fetchMessages(true);
-        }}
-      >
-        {isLoading ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <RefreshCcw className="h-4 w-4" />
-        )}
-      </Button>
+      <div className="flex justify-between mt-4">
+        <Button
+          variant="outline"
+          onClick={(e) => {
+            e.preventDefault();
+            fetchMessages(true);
+          }}
+        >
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <RefreshCcw className="h-4 w-4" />
+          )}
+        </Button>
+        <Button
+          onClick={() => {
+            window.open(`/u/${username}/message`, "_blank");
+          }}
+        >
+          Send message!!
+        </Button>
+      </div>
+      {messages.length === 0 && <p className="mt-6">No Messages to display</p>}
       {answeredMessages.length !== 0 && (
         <Label className="block text-3xl italic mt-6 mb-2 font-semibold">
           Answered Questions:
         </Label>
       )}
       <div className="flex flex-col gap-6">
-        {answeredMessages.length > 0 ? (
+        {answeredMessages.length > 0 &&
           answeredMessages.map((message) => (
             <div
               key={message._id!.toString()}
@@ -142,10 +151,7 @@ export default function UserPage() {
             >
               <MessageCardPublic message={message} />
             </div>
-          ))
-        ) : (
-          <p>No messages to display.</p>
-        )}
+          ))}
       </div>
       {unansweredMessages.length !== 0 && (
         <Label className="block text-3xl italic mt-6 mb-2 font-semibold">
@@ -153,7 +159,7 @@ export default function UserPage() {
         </Label>
       )}
       <div className="flex flex-col gap-6">
-        {unansweredMessages.length > 0 ? (
+        {unansweredMessages.length > 0 &&
           unansweredMessages.map((message) => (
             <div
               key={message._id!.toString()}
@@ -161,10 +167,7 @@ export default function UserPage() {
             >
               <MessageCardPublic message={message} />
             </div>
-          ))
-        ) : (
-          <p>No messages to display.</p>
-        )}
+          ))}
       </div>
     </div>
   );
