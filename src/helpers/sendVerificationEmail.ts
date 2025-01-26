@@ -18,10 +18,10 @@ export async function sendVerificationEmail(
     });
 
     if (!res.data) {
-      console.error("Failed to send verification email: " + res.error);
+      console.error(String(res.error));
       return {
         success: false,
-        message: "Failed to send verification email",
+        message: "Please try again later!",
       };
     }
 
