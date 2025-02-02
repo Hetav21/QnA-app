@@ -1,3 +1,5 @@
+"use server";
+
 import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
 import dbConnect from "@/lib/dbConnect";
 import { response } from "@/lib/response";

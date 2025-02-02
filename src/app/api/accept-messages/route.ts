@@ -1,3 +1,5 @@
+"use server";
+
 import { authOptions } from "@/lib/auth-options";
 import dbConnect from "@/lib/dbConnect";
 import { response } from "@/lib/response";

@@ -1,3 +1,5 @@
+"use server";
+
 import dbConnect from "@/lib/dbConnect";
 import { response } from "@/lib/response";
 import { UserModel } from "@/model/User";
