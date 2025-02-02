@@ -30,12 +30,10 @@ export function NavBar() {
           // Session based rendering of Login or Logout
           session ? (
             <>
-              {/* <span className="mr-4">
-              Welcome, {user?.username || user?.email}
-            </span> */}
               <Button
                 className="w-full md:w-auto"
-                onClick={() => {
+                onClick={(e: React.SyntheticEvent) => {
+                  e.preventDefault();
                   toast({
                     title: "Logged out",
                     description: "Logged out successfully",
