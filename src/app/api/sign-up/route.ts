@@ -1,18 +1,46 @@
-import dbConnect from "@/lib/dbConnect";
-import { UserModel } from "@/model/User";
-import { hash } from "bcryptjs";
 import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
-import { NextRequest } from "next/server";
+import dbConnect from "@/lib/dbConnect";
 import { response } from "@/lib/response";
+import { UserModel } from "@/model/User";
+import { signUpSchema } from "@/schemas/signUpSchema";
+import { hash } from "bcryptjs";
+import { validateTurnstileToken } from "next-turnstile";
+import { NextRequest } from "next/server";
+import { v4 } from "uuid";
+import { z } from "zod";
 
 export async function POST(req: NextRequest) {
   // Waiting for database connection
   await dbConnect();
   try {
-    const body = await req.json();
+    const body: z.infer<typeof signUpSchema> = await req.json();
+
     const username = body.username;
     const email = body.email;
     const password = body.password;
+    const token = body.cfTurnstileResponse;
+
+    const validationResponse = await validateTurnstileToken({
+      token,
+      secretKey: process.env.CF_TURNSTILE_SECRET_KEY!,
+      // Idempotency key to prevent token reuse
+      idempotencyKey: v4(),
+      // Always returns success in development
+      // Enabled by default,
+      // set to false, in case testing in production
+      sandbox: process.env.NODE_ENV === "development",
+    });
+
+    // In case of not a valid captcha
+    if (!validationResponse.success) {
+      return response(
+        {
+          success: false,
+          message: "Invalid Captcha",
+        },
+        400,
+      );
+    }
 
     // Check if username is already taken
     const existingUserVerifiedByUsername = await UserModel.findOne({

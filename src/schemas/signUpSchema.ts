@@ -27,4 +27,5 @@ export const signUpSchema = z.object({
   username: usernameValidation,
   email: emailValidation,
   password: passwordValidation,
+  cfTurnstileResponse: z.string(),
 });

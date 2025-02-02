@@ -1,15 +1,15 @@
 "use client";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useDebounceCallback } from "usehooks-ts";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
 import { signUpSchema } from "@/schemas/signUpSchema";
-import axios, { AxiosError, AxiosResponse } from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios, { AxiosError, AxiosResponse } from "axios";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { useDebounceCallback } from "usehooks-ts";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,8 +21,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
+import { Turnstile } from "next-turnstile";
 
 const SignUpPage = () => {
   // username state to store username
@@ -185,6 +186,48 @@ const SignUpPage = () => {
                       type="password"
                       placeholder="***********"
                       {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="cfTurnstileResponse"
+              render={() => (
+                <FormItem>
+                  <FormControl>
+                    <Turnstile
+                      siteKey={process.env.NEXT_PUBLIC_CF_TURNSTILE_SITE_KEY!}
+                      // @ts-ignore
+                      // cf turnstile can be flexible or normal or compact
+                      size="flexible"
+                      theme="light"
+                      retry="auto"
+                      refreshExpired="auto"
+                      // Returns dummy token in development
+                      // Enabled by default,
+                      // set to false, in case testing in production
+                      sandbox={process.env.NODE_ENV === "development"}
+                      onError={() => {
+                        toast({
+                          title: "Error",
+                          description:
+                            "Security check failed. Please try again.",
+                          variant: "destructive",
+                        });
+                      }}
+                      onExpire={() => {
+                        toast({
+                          title: "Error",
+                          description:
+                            "Security check expired. Please verify again.",
+                          variant: "destructive",
+                        });
+                      }}
+                      onVerify={(token) => {
+                        form.setValue("cfTurnstileResponse", token);
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
