@@ -1,25 +1,8 @@
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
-import { response } from "./lib/response";
 export { default } from "next-auth/middleware";
 
-async function blockCors(req: NextRequest) {
-  const origin = req.headers.get("origin");
-
-  // If there is an origin, block the request
-  if (origin) {
-    return new NextResponse(null, {
-      status: 403,
-      headers: {
-        "Content-Type": "text/plain",
-      },
-    });
-  }
-}
-
 export async function middleware(request: NextRequest) {
-  await blockCors(request);
-
   const token = await getToken({ req: request });
   const url = request.nextUrl;
 
@@ -39,5 +22,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: "/:path*",
+  matcher: ["/sign-in", "/sign-up", "/", "/dashboard/:path*", "/verify/:path*"],
 };
