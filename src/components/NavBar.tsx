@@ -1,22 +1,23 @@
 "use client";
+import { useToast } from "@/hooks/use-toast";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import React from "react";
+import { usePathname } from "next/navigation";
 import { Button } from "./ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { Label } from "./ui/label";
 
 export function NavBar() {
   // Extracting session information
   const { data: session } = useSession();
 
-  // const user = session?.user;
-
   // Initializing toast
   const { toast } = useToast();
 
+  // Extracting current path of the website
+  const path = usePathname();
+
   return (
-    <nav className="p-4 md:p-6 shadow-md">
+    <nav className="mx-auto w-full p-4 md:p-6 shadow-md">
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
         <Link
           className="text-2xl font-bold mb-4 md:mb-0"
@@ -47,11 +48,20 @@ export function NavBar() {
               </Button>
             </>
           ) : (
-            <Link href="/sign-in">
-              <Button className="w-full md:w-auto">
-                <Label>Login</Label>
-              </Button>
-            </Link>
+            <div className="w-full md:w-fit flex flex-col md:flex-row justify-between items-center">
+              <Link href="/sign-up">
+                <Button className="w-full md:w-auto">
+                  <Label>Sign Up</Label>
+                </Button>
+              </Link>
+              {path === "/" && (
+                <Link href="/sign-in">
+                  <Button className="md:ml-6 w-full mt-2 md:mt-0 md:w-auto">
+                    <Label>Sign In</Label>
+                  </Button>
+                </Link>
+              )}
+            </div>
           )
         }
       </div>
