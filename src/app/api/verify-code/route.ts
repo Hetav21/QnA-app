@@ -1,8 +1,10 @@
 "use server";
 
 import dbConnect from "@/lib/dbConnect";
+import { limiter } from "@/lib/limiter";
 import { response } from "@/lib/response";
 import { UserModel } from "@/model/User";
+import { verifyCodeRL as limit } from "@/static/rateLimits";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -18,6 +20,25 @@ export async function POST(req: NextRequest) {
     // decoding username from URI
     const decodedUsername = decodeURIComponent(username);
 
+    const { isRateLimited, usageLeft } = await limiter.check(
+      `${decodedUsername}_verify-code`,
+      limit,
+    );
+
+    if (isRateLimited) {
+      return response(
+        {
+          success: false,
+          message: "Rate limit exceeded, please try again later",
+        },
+        429,
+        {
+          "X-RateLimit-Limit": limit.toString(),
+          "X-RateLimit-Remaining": usageLeft.toString(),
+        },
+      );
+    }
+
     // Finding user from db
     const user = await UserModel.findOne({
       username: decodedUsername,
@@ -31,6 +52,10 @@ export async function POST(req: NextRequest) {
           message: "User not found",
         },
         404,
+        {
+          "X-RateLimit-Limit": limit.toString(),
+          "X-RateLimit-Remaining": usageLeft.toString(),
+        },
       );
     }
 
@@ -42,6 +67,10 @@ export async function POST(req: NextRequest) {
           message: "User already verified",
         },
         200,
+        {
+          "X-RateLimit-Limit": limit.toString(),
+          "X-RateLimit-Remaining": usageLeft.toString(),
+        },
       );
     }
 
@@ -60,6 +89,10 @@ export async function POST(req: NextRequest) {
           message: "User verified successfully",
         },
         200,
+        {
+          "X-RateLimit-Limit": limit.toString(),
+          "X-RateLimit-Remaining": usageLeft.toString(),
+        },
       );
     } else if (!isCodeNotExpired) {
       // Code expired
@@ -70,6 +103,10 @@ export async function POST(req: NextRequest) {
             "Verification code expired, please sign in again to get a new code",
         },
         200,
+        {
+          "X-RateLimit-Limit": limit.toString(),
+          "X-RateLimit-Remaining": usageLeft.toString(),
+        },
       );
     } else {
       //  Code is incorrect
@@ -79,6 +116,10 @@ export async function POST(req: NextRequest) {
           message: "Invalid verification code",
         },
         200,
+        {
+          "X-RateLimit-Limit": limit.toString(),
+          "X-RateLimit-Remaining": usageLeft.toString(),
+        },
       );
     }
   } catch (err) {
@@ -90,6 +131,9 @@ export async function POST(req: NextRequest) {
         message: "Error verifying user",
       },
       500,
+      {
+        "X-RateLimit-Limit": limit.toString(),
+      },
     );
   }
 }

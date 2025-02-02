@@ -31,6 +31,7 @@
     "embla-carousel-autoplay": "^8.5.1",
     "embla-carousel-react": "^8.5.1",
     "input-otp": "^1.4.1",
+    "lru-cache": "^11.0.2",
     "lucide-react": "^0.469.0",
     "mongoose": "^8.9.2",
     "next": "15.1.2",

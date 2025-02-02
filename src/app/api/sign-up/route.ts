@@ -2,9 +2,11 @@
 
 import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
 import dbConnect from "@/lib/dbConnect";
+import { limiter } from "@/lib/limiter";
 import { response } from "@/lib/response";
 import { UserModel } from "@/model/User";
 import { signUpSchema } from "@/schemas/signUpSchema";
+import { signUpRL as limit } from "@/static/rateLimits";
 import { hash } from "bcryptjs";
 import { validateTurnstileToken } from "next-turnstile";
 import { NextRequest } from "next/server";
@@ -21,6 +23,25 @@ export async function POST(req: NextRequest) {
     const email = body.email;
     const password = body.password;
     const token = body.cfTurnstileResponse;
+
+    const { isRateLimited, usageLeft } = await limiter.check(
+      `${email}_sign-up`,
+      limit,
+    );
+
+    if (isRateLimited) {
+      return response(
+        {
+          success: false,
+          message: "Rate limit exceeded, please try again later",
+        },
+        429,
+        {
+          "X-RateLimit-Limit": limit.toString(),
+          "X-RateLimit-Remaining": usageLeft.toString(),
+        },
+      );
+    }
 
     const validationResponse = await validateTurnstileToken({
       token,
@@ -42,6 +63,10 @@ export async function POST(req: NextRequest) {
           message: "Invalid Captcha",
         },
         400,
+        {
+          "X-RateLimit-Limit": limit.toString(),
+          "X-RateLimit-Remaining": usageLeft.toString(),
+        },
       );
     }
 
@@ -58,6 +83,10 @@ export async function POST(req: NextRequest) {
           message: "Username already taken",
         },
         401,
+        {
+          "X-RateLimit-Limit": limit.toString(),
+          "X-RateLimit-Remaining": usageLeft.toString(),
+        },
       );
     }
 
@@ -78,6 +107,10 @@ export async function POST(req: NextRequest) {
             message: "Email already in use",
           },
           401,
+          {
+            "X-RateLimit-Limit": limit.toString(),
+            "X-RateLimit-Remaining": usageLeft.toString(),
+          },
         );
       } else {
         // email is not verified
@@ -129,6 +162,10 @@ export async function POST(req: NextRequest) {
           message: "Error sending verification email: " + emailResponse.message,
         },
         500,
+        {
+          "X-RateLimit-Limit": limit.toString(),
+          "X-RateLimit-Remaining": usageLeft.toString(),
+        },
       );
     }
 
@@ -138,6 +175,10 @@ export async function POST(req: NextRequest) {
         message: "Verification email sent successfully",
       },
       200,
+      {
+        "X-RateLimit-Limit": limit.toString(),
+        "X-RateLimit-Remaining": usageLeft.toString(),
+      },
     );
   } catch (error) {
     console.error("Error registering user: ", error);
@@ -147,6 +188,9 @@ export async function POST(req: NextRequest) {
         message: "Error registering user",
       },
       500,
+      {
+        "X-RateLimit-Limit": limit.toString(),
+      },
     );
   }
 }
