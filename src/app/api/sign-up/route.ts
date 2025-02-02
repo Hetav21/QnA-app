@@ -28,7 +28,8 @@ export async function POST(req: NextRequest) {
       // Always returns success in development
       // Enabled by default,
       // set to false, in case testing in production
-      sandbox: process.env.NODE_ENV === "development",
+      sandbox: false,
+      // sandbox: process.env.NODE_ENV === "development",
     });
 
     // In case of not a valid captcha

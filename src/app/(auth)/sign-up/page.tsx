@@ -208,7 +208,8 @@ const SignUpPage = () => {
                       // Returns dummy token in development
                       // Enabled by default,
                       // set to false, in case testing in production
-                      sandbox={process.env.NODE_ENV === "development"}
+                      sandbox={false}
+                      // sandbox={process.env.NODE_ENV === "development"}
                       onError={() => {
                         toast({
                           title: "Error",
