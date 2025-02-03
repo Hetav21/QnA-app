@@ -1,11 +1,16 @@
 "use server";
 
 import dbConnect from "@/lib/dbConnect";
-import { limiter } from "@/lib/limiter";
+import rateLimit from "@/lib/limiter";
 import { response } from "@/lib/response";
 import { UserModel } from "@/model/User";
 import { verifyCodeRL as limit } from "@/static/rateLimits";
 import { NextRequest } from "next/server";
+
+const limiter = rateLimit({
+  interval: parseInt(process.env.RL_TIME_INTERVAL!) || 60 * 1000,
+  uniqueTokenPerInterval: parseInt(process.env.RL_MAX_REQUESTS!) || 500,
+});
 
 export async function POST(req: NextRequest) {
   // Waiting for db connection
@@ -20,6 +25,7 @@ export async function POST(req: NextRequest) {
     // decoding username from URI
     const decodedUsername = decodeURIComponent(username);
 
+    // Rate limiting based on username
     const { isRateLimited, usageLeft } = await limiter.check(
       `${decodedUsername}_verify-code`,
       limit,

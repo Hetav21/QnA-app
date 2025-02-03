@@ -16,7 +16,6 @@ export default function rateLimit(options?: Options) {
     check: (token: string, limit: number) =>
       new Promise<{ isRateLimited: boolean; usageLeft: number }>(
         (resolve, reject) => {
-          console.log(token);
           const tokenCount = (tokenCache.get(token) as number[]) || [0];
           if (tokenCount[0] === 0) {
             tokenCache.set(token, tokenCount);
@@ -31,8 +30,3 @@ export default function rateLimit(options?: Options) {
       ),
   };
 }
-
-export const limiter = rateLimit({
-  interval: parseInt(process.env.RL_TIME_INTERVAL!) || 60 * 1000,
-  uniqueTokenPerInterval: parseInt(process.env.RL_MAX_REQUESTS!) || 500,
-});

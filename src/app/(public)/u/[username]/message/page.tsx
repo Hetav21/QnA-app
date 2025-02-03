@@ -24,7 +24,7 @@ import { staticSuggestedMessages } from "@/static/staticSuggestedMessages";
 import { ApiResponse } from "@/types/ApiResponse";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCompletion } from "ai/react";
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -48,8 +48,26 @@ export default function UserQuestionPage() {
 
   // Handles suggested messages
   const { completion, complete, error } = useCompletion({
-    api: "/api/suggest-messages",
+    api: "/api/suggest-messages/" + params.username,
     initialCompletion: suggestedMessages,
+    onError: (err) => {
+      try {
+        // Try parsing error message
+        const error: ApiResponse = JSON.parse(err.message);
+        toast({
+          title: "Error fetching messages",
+          description: error.message || "Failed to fetch messages",
+          variant: "destructive",
+        });
+      } catch (err) {
+        // In case of error
+        toast({
+          title: "Error fetching messages",
+          description: "Failed to fetch messages",
+          variant: "destructive",
+        });
+      }
+    },
   });
 
   // Method to get random static suggested messages
@@ -124,11 +142,14 @@ export default function UserQuestionPage() {
         });
       }
     } catch (err) {
+      const axiosError = err as AxiosError<ApiResponse>;
+
       // In case of error
-      console.error("Error sending message: ", err);
+      console.error("Error sending message: ", axiosError);
       toast({
         title: "Error sending message",
-        description: "Failed to send message",
+        description:
+          axiosError.response?.data.message || "Failed to send message",
         variant: "destructive",
       });
     } finally {
@@ -141,16 +162,26 @@ export default function UserQuestionPage() {
     setIsSuggesting(true);
 
     try {
-      await complete(
-        prompt + "suggest something different from: " + completion,
+      const suggestions = await complete(
+        prompt +
+          "suggest something different from: " +
+          completion +
+          " and " +
+          suggestedMessages,
       );
+
+      // Setting new suggested messages
+      // Only needed as a fall back in case
+      // Api fails to return completions
+      // otherwise completions are handled by useCompletion hook
+      if (suggestions) setSuggestedMessages(suggestions);
     } catch (err) {
       console.error("Error fetching messages: " + err);
       // In case of error, suggested messages are static
       setSuggestedMessages(getStaticSuggestedMessages(numberOfMessages));
+    } finally {
+      setIsSuggesting(false);
     }
-
-    setIsSuggesting(false);
   };
 
   const parseCompletions = (completions: string): string[] => {

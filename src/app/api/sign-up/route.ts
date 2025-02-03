@@ -2,7 +2,7 @@
 
 import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
 import dbConnect from "@/lib/dbConnect";
-import { limiter } from "@/lib/limiter";
+import rateLimit from "@/lib/limiter";
 import { response } from "@/lib/response";
 import { UserModel } from "@/model/User";
 import { signUpSchema } from "@/schemas/signUpSchema";
@@ -12,6 +12,11 @@ import { validateTurnstileToken } from "next-turnstile";
 import { NextRequest } from "next/server";
 import { v4 } from "uuid";
 import { z } from "zod";
+
+const limiter = rateLimit({
+  interval: parseInt(process.env.RL_TIME_INTERVAL!) || 60 * 1000,
+  uniqueTokenPerInterval: parseInt(process.env.RL_MAX_REQUESTS!) || 500,
+});
 
 export async function POST(req: NextRequest) {
   // Waiting for database connection
@@ -24,6 +29,7 @@ export async function POST(req: NextRequest) {
     const password = body.password;
     const token = body.cfTurnstileResponse;
 
+    // Rate limiting based on email
     const { isRateLimited, usageLeft } = await limiter.check(
       `${email}_sign-up`,
       limit,
