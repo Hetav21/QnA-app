@@ -1,17 +1,30 @@
 "use client";
 
 import { MessageCard } from "@/components/MessageCard";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { Toggle } from "@/components/ui/toggle";
 import { useMessageContext } from "@/context/MessageContext";
 import { useToast } from "@/hooks/use-toast";
 import { copyToClipboard } from "@/lib/copyToClipboard";
+import { MessageInterface } from "@/model/Message";
 import { acceptMessageSchema } from "@/schemas/acceptMessageSchema";
 import { ApiResponse } from "@/types/ApiResponse";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios, { AxiosError, AxiosResponse } from "axios";
-import { Loader2, RefreshCcw } from "lucide-react";
+import { Loader2, RefreshCcw, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -24,8 +37,15 @@ export default function Dashboard() {
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSwitchLoading, setIsSwitchLoading] = useState<boolean>(false);
+  const [isDeletingMessages, setIsDeletingMessages] = useState<boolean>(false);
+  const [selectAll, setSelectAll] = useState<boolean>(false);
 
   const { toast } = useToast();
+
+  // Selecting messages to delete
+  const [messagesToDelete, setMessagesToDelete] = useState<
+    MessageInterface["_id"][]
+  >([]);
 
   // Fetching the session
   const { data: session } = useSession();
@@ -173,6 +193,31 @@ export default function Dashboard() {
   // Creating a profile url
   const profileUrl = `${baseUrl}/u/${username}`;
 
+  // Method to confir before deletion
+  const handleDeleteConfirm = async () => {
+    // Sending backend request to delete message
+    const response: AxiosResponse<ApiResponse> = await axios.post(
+      `/api/delete-messages`,
+      {
+        messages: messagesToDelete,
+      },
+    );
+
+    toast({
+      title: response.data.success
+        ? "Messages deleted successfully"
+        : "Error deleting messages",
+      description: response.data.message,
+      variant: response.data.success ? "default" : "destructive",
+    });
+
+    // Updating the messages state
+    setMessages((messages) => {
+      // Remove the messages that are deleted
+      return messages.filter((m) => !messagesToDelete.includes(m._id!));
+    });
+  };
+
   return (
     <div className="my-8 mx-auto p-6 bg-white rounded w-full max-w-6xl">
       <h1 className="text-4xl font-bold mb-4">User Dashboard</h1>
@@ -209,24 +254,97 @@ export default function Dashboard() {
       </div>
       <Separator />
 
-      <Button
-        className="mt-4"
-        variant="outline"
-        onClick={(e) => {
-          e.preventDefault();
-          fetchMessages(true);
-        }}
-      >
-        {isLoading ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
+      <div className="flex justify-between mt-4">
+        {!isDeletingMessages ? (
+          <Button
+            variant="outline"
+            onClick={(e) => {
+              e.preventDefault();
+              fetchMessages(true);
+            }}
+          >
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCcw className="h-4 w-4" />
+            )}
+          </Button>
         ) : (
-          <RefreshCcw className="h-4 w-4" />
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" className="self-center">
+                Delete Selected
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete
+                  your account and remove your data from our servers.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDeleteConfirm}>
+                  Continue
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         )}
-      </Button>
+        {!isDeletingMessages ? (
+          <Button
+            onClick={() => {
+              setIsDeletingMessages(true);
+            }}
+          >
+            Delete Messages
+          </Button>
+        ) : (
+          <div className="flex gap-3">
+            <div className="gap-6">
+              <Toggle
+                pressed={selectAll}
+                onPressedChange={(pressed) => {
+                  if (pressed) {
+                    setSelectAll(true);
+                    setMessagesToDelete(
+                      messages ? messages.map((m) => m._id!) : [],
+                    );
+                  } else {
+                    setSelectAll(false);
+                    setMessagesToDelete([]);
+                  }
+                }}
+                className="self-center"
+              >
+                Select All
+              </Toggle>
+            </div>
+
+            <Button
+              onClick={() => {
+                setIsDeletingMessages(false);
+              }}
+              className="self-center"
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
+        )}
+      </div>
       <div className="mt-4 grid auto-rows-fr items-start grid-cols-1 md:grid-cols-2 gap-6">
         {messages.length > 0 ? (
           messages.map((message) => (
-            <MessageCard key={message._id!.toString()} message={message} />
+            <MessageCard
+              key={message._id!.toString()}
+              isDeletingMessages={isDeletingMessages}
+              setDeleteMessageAction={setMessagesToDelete}
+              message={message}
+              selectAll={selectAll}
+              setSelectAllAction={setSelectAll}
+            />
           ))
         ) : (
           <p>No messages to display.</p>
