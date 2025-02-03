@@ -28,4 +28,7 @@ export const signUpSchema = z.object({
   email: emailValidation,
   password: passwordValidation,
   cfTurnstileResponse: z.string(),
+  acceptTerms: z.boolean().refine((val) => val === true, {
+    message: "You must accept the terms and conditions",
+  }),
 });

@@ -10,7 +10,6 @@ import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useDebounceCallback } from "usehooks-ts";
 import { z } from "zod";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -24,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { Turnstile } from "next-turnstile";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const SignUpPage = () => {
   // username state to store username
@@ -230,6 +230,43 @@ const SignUpPage = () => {
                         form.setValue("cfTurnstileResponse", token);
                       }}
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="acceptTerms"
+              render={() => (
+                <FormItem>
+                  <FormControl>
+                    <Label className="flex gap-2">
+                      <Checkbox
+                        {...form.register("acceptTerms", { required: true })}
+                        className="size-5"
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            form.setValue("acceptTerms", true);
+                            toast({
+                              title: "Terms and Conditions",
+                              description:
+                                "By clicking on the checkbox, you are agreeing to our terms and conditions",
+                            });
+                          } else {
+                            form.setValue("acceptTerms", false);
+                          }
+                        }}
+                      />
+                      <div className="content-center">
+                        Accept{" "}
+                        <Link
+                          className="underline text-blue-600 visited:text-purple-600"
+                          href="/terms-of-use.html"
+                        >
+                          Terms and Conditions
+                        </Link>
+                      </div>
+                    </Label>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
