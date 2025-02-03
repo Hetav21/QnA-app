@@ -10,16 +10,19 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { getRandomNumbers } from "@/lib/randomizer";
 import { messageSchema } from "@/schemas/messageSchema";
+import { suggestMessageSchema } from "@/schemas/suggestMessageSchema";
 import {
   numberOfMessages,
   prompt,
   specialCharacter,
-} from "@/static/prompts/default";
+} from "@/static/prompts/custom";
 import { staticSuggestedMessages } from "@/static/staticSuggestedMessages";
 import { ApiResponse } from "@/types/ApiResponse";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -92,9 +95,18 @@ export default function UserQuestionPage() {
     },
   });
 
+  // Form to get user input for suggesting messages
+  const suggestMessageForm = useForm<z.infer<typeof suggestMessageSchema>>({
+    resolver: zodResolver(suggestMessageSchema),
+    defaultValues: {
+      content: "",
+    },
+  });
+
   // To watch if the form content is changed
   // Used to disable the submit button if form content is empty
   const messageContent = form.watch("content");
+  const suggestedMessageContent = suggestMessageForm.watch("content");
 
   // Method to handle form submission
   const onSubmit: SubmitHandler<z.infer<typeof messageSchema>> = async (
@@ -163,11 +175,7 @@ export default function UserQuestionPage() {
 
     try {
       const suggestions = await complete(
-        prompt +
-          "suggest something different from: " +
-          completion +
-          " and " +
-          suggestedMessages,
+        prompt + suggestMessageForm.getValues("content").toUpperCase(),
       );
 
       // Setting new suggested messages
@@ -233,33 +241,62 @@ export default function UserQuestionPage() {
           </form>
         </Form>
         {/* Suggested Messages */}
-        <Card className="mt-10">
-          <CardTitle className="text-center m-8">Suggested Messages</CardTitle>
-          <CardContent>
-            {/* In case of error show static suggested messages, otherwise show completions */}
-            {parseCompletions(!error ? completion : suggestedMessages).map(
-              (message, index) => {
-                return (
-                  <Card className="m-2 hover:bg-gray-200" key={index}>
-                    <CardContent
-                      className="p-4 text-center"
-                      onClick={() => {
-                        form.setValue("content", message);
-                      }}
-                    >
-                      <Label>{message}</Label>
-                    </CardContent>
-                  </Card>
-                );
-              },
-            )}
-          </CardContent>
-          <div className="w-full flex justify-center pb-4">
-            <Button onClick={onSuggest} disabled={isSuggesting}>
-              Suggest messages!!
-            </Button>
-          </div>
-        </Card>
+        <Form {...suggestMessageForm}>
+          <form
+            onSubmit={suggestMessageForm.handleSubmit(onSuggest)}
+            className="space-y-8"
+          >
+            <Card className="mt-10">
+              <CardTitle className="text-center m-8">
+                Suggest Messages
+              </CardTitle>
+              <CardContent>
+                <FormField
+                  control={suggestMessageForm.control}
+                  name="content"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          disabled={isSuggesting}
+                          {...field}
+                          placeholder="Describe your message here"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Separator className="mt-3 mb-6" />
+                {/* In case of error, show previous suggested messages, otherwise show completions */}
+                {parseCompletions(!error ? completion : suggestedMessages).map(
+                  (message, index) => {
+                    return (
+                      <Card className="m-2 hover:bg-gray-200" key={index}>
+                        <CardContent
+                          className="p-4 text-center"
+                          onClick={() => {
+                            form.setValue("content", message);
+                          }}
+                        >
+                          <Label>{message}</Label>
+                        </CardContent>
+                      </Card>
+                    );
+                  },
+                )}
+              </CardContent>
+              <div className="w-full flex justify-center pb-4">
+                <Button
+                  type="submit"
+                  disabled={isSuggesting || !suggestedMessageContent}
+                >
+                  <Label>Suggest Messages</Label>
+                </Button>
+              </div>
+            </Card>
+          </form>
+        </Form>
       </div>
     </div>
   );
