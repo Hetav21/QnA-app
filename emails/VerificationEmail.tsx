@@ -69,9 +69,6 @@ export default function VerificationEmail({
           >
             {otp}
           </Text>
-          <Text style={{ fontSize: "14px", color: "#777" }}>
-            If you did not request this code, please ignore this email.
-          </Text>
           <Button
             href={`${process.env.NEXTAUTH_URL}/verify/${username}?otp=${otp}`}
             style={{
@@ -88,6 +85,9 @@ export default function VerificationEmail({
             Verify Now
           </Button>
         </Section>
+        <Text style={{ fontSize: "14px", color: "#777" }}>
+          If you did not request this code, please ignore this email.
+        </Text>
       </Container>
     </Html>
   );
