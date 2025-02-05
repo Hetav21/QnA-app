@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
           success: false,
           message: "Rate limit exceeded, please try again later",
         },
-        429,
+        200,
         {
           "X-RateLimit-Limit": limit.toString(),
           "X-RateLimit-Remaining": usageLeft.toString(),
@@ -55,9 +55,9 @@ export async function POST(req: NextRequest) {
       return response(
         {
           success: false,
-          message: "User not found",
+          message: "User not found, please sign up",
         },
-        404,
+        200,
         {
           "X-RateLimit-Limit": limit.toString(),
           "X-RateLimit-Remaining": usageLeft.toString(),
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
       return response(
         {
           success: false,
-          message: "User already verified",
+          message: "User already verified, please sign in",
         },
         200,
         {
@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
         {
           success: false,
           message:
-            "Verification code expired, please sign in again to get a new code",
+            "Verification code expired, please sign up again to get a new code",
         },
         200,
         {
@@ -120,6 +120,9 @@ export async function POST(req: NextRequest) {
         {
           success: false,
           message: "Invalid verification code",
+          data: {
+            shouldReset: true,
+          },
         },
         200,
         {

@@ -73,7 +73,7 @@ export default function VerificationEmail({
             If you did not request this code, please ignore this email.
           </Text>
           <Button
-            href={`${process.env.NEXTAUTH_URL || process.env.VERCEL_URL}/verify/${username}`}
+            href={`${process.env.NEXTAUTH_URL}/verify/${username}?otp=${otp}`}
             style={{
               backgroundColor: "#4CAF50",
               color: "#ffffff",
