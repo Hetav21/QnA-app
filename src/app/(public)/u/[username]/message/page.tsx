@@ -204,7 +204,7 @@ export default function UserQuestionPage() {
 
   return (
     <div className="flex justify-center items-center">
-      <div className="mx-32 max-w-6xl w-full p-8 bg-white rounded-lg">
+      <div className="max-w-6xl w-full p-8 bg-white rounded-lg">
         <div className="flex-grow flex flex-col items-center justify-center md:px-12 py-6 text-black">
           <section className="text-center mb-8 md:mb-12">
             <h1 className="text-xl md:text-4xl font-bold">
@@ -235,7 +235,11 @@ export default function UserQuestionPage() {
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={isSubmitting || !messageContent}>
+            <Button
+              className="flex justify-center w-full md:w-fit"
+              type="submit"
+              disabled={isSubmitting || !messageContent}
+            >
               <Label>Send message now!!</Label>
             </Button>
           </form>
