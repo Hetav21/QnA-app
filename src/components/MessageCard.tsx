@@ -26,7 +26,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import axios, { AxiosResponse } from "axios";
 import { X } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useDebounceCallback } from "usehooks-ts";
 import { z } from "zod";
@@ -41,18 +41,21 @@ export function MessageCard({
   isDeletingMessages,
   setDeleteMessageAction,
   selectAll,
+  setSelectAllAction,
 }: {
   message: MessageInterface;
   isDeletingMessages: boolean;
   setDeleteMessageAction: (
     props: (ms: MessageInterface["_id"][]) => MessageInterface["_id"][],
   ) => void;
-  selectAll: boolean;
-  setSelectAllAction: (props: boolean) => void;
+  selectAll: "PartialSelect" | "SelectAll" | "DeSelectAll";
+  setSelectAllAction: (
+    props: "PartialSelect" | "SelectAll" | "DeSelectAll",
+  ) => void;
 }) {
   const { toast } = useToast();
 
-  const [check, setCheck] = useState<boolean>(false || selectAll);
+  const [check, setCheck] = useState<boolean>(selectAll === "SelectAll");
 
   // State to manage the reply box
   const [isReplyPressed, setIsReplyPressed] = useState<boolean>(false);
@@ -84,6 +87,11 @@ export function MessageCard({
       reply: message.reply !== "" ? parseMessage(message.reply) : message.reply,
     },
   });
+
+  useEffect(() => {
+    if (selectAll === "SelectAll") setCheck(true);
+    else if (selectAll === "DeSelectAll") setCheck(false);
+  }, [selectAll]);
 
   // Submit Handler for sending reply
   const onSubmit: SubmitHandler<z.infer<typeof replySchema>> = async (data) => {
@@ -138,12 +146,11 @@ export function MessageCard({
                 <div className="inline-flex w-full gap-6">
                   <div className="h-10 px-4 py-2">
                     <Checkbox
-                      checked={check || selectAll}
-                      disabled={selectAll}
+                      checked={check}
                       onClick={() => {
-                        if (!selectAll) {
-                          setCheck(!check);
-                        }
+                        setCheck(!check);
+                        if (selectAll === "SelectAll")
+                          setSelectAllAction("PartialSelect");
                       }}
                       onCheckedChange={(checked) => {
                         console.log(checked);

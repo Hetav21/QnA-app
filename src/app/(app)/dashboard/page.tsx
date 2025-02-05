@@ -38,7 +38,18 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSwitchLoading, setIsSwitchLoading] = useState<boolean>(false);
   const [isDeletingMessages, setIsDeletingMessages] = useState<boolean>(false);
-  const [selectAll, setSelectAll] = useState<boolean>(false);
+  // In case user click on the selectAll,
+  // then,
+  // if selectAll is toggled on, then all messages are deselected, i.e deselectAll state
+  // else if selectAll is toggled off, then all messages are selected, i.e selectAll state
+  // In the above cases, the select all toggle overrides the individual message checkbox state
+  // If the selectAll is toggled on,
+  // and if the user unchecks a particular message,
+  // then the selectAll state is changed to PartialSelect
+  // where only the message unchecked by user is deselected
+  const [selectAll, setSelectAll] = useState<
+    "PartialSelect" | "SelectAll" | "DeSelectAll"
+  >("DeSelectAll");
 
   const { toast } = useToast();
 
@@ -294,26 +305,30 @@ export default function Dashboard() {
           </AlertDialog>
         )}
         {!isDeletingMessages ? (
-          <Button
-            onClick={() => {
-              setIsDeletingMessages(true);
-            }}
-          >
-            Delete Messages
-          </Button>
+          messages.length > 0 ? (
+            <Button
+              onClick={() => {
+                setIsDeletingMessages(true);
+              }}
+            >
+              Delete Messages
+            </Button>
+          ) : (
+            <></>
+          )
         ) : (
           <div className="flex gap-3">
             <div className="gap-6">
               <Toggle
-                pressed={selectAll}
+                pressed={selectAll === "SelectAll"}
                 onPressedChange={(pressed) => {
                   if (pressed) {
-                    setSelectAll(true);
+                    setSelectAll("SelectAll");
                     setMessagesToDelete(
                       messages ? messages.map((m) => m._id!) : [],
                     );
                   } else {
-                    setSelectAll(false);
+                    setSelectAll("DeSelectAll");
                     setMessagesToDelete([]);
                   }
                 }}
