@@ -7,16 +7,15 @@ import {
   Row,
   Section,
   Text,
-  // Button,
+  Button,
+  Container,
 } from "@react-email/components";
 
-// Input to the verification email template
 interface VerificationEmailProps {
   username: string;
   otp: string;
 }
 
-// Template to send verification email otp to the user
 export default function VerificationEmail({
   username,
   otp,
@@ -36,34 +35,60 @@ export default function VerificationEmail({
           fontStyle="normal"
         />
       </Head>
-      <Preview>Here&apos;s your verification code: {otp}</Preview>
-      <Section>
-        <Row>
-          <Heading as="h2">Hello {username},</Heading>
-        </Row>
-        <Row>
-          <Text>
+      <Preview>Your verification code is {otp}</Preview>
+      <Container
+        style={{
+          backgroundColor: "#f9f9f9",
+          padding: "20px",
+          borderRadius: "8px",
+        }}
+      >
+        <Section
+          style={{
+            backgroundColor: "#ffffff",
+            padding: "20px",
+            borderRadius: "8px",
+            textAlign: "center",
+            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          <Heading as="h2" style={{ color: "#333" }}>
+            Hello {username},
+          </Heading>
+          <Text style={{ fontSize: "16px", color: "#555" }}>
             Thank you for registering. Please use the following verification
             code to complete your registration:
           </Text>
-        </Row>
-        <Row>
-          <Text>{otp}</Text>
-        </Row>
-        <Row>
-          <Text>
+          <Text
+            style={{
+              fontSize: "24px",
+              fontWeight: "bold",
+              color: "#4CAF50",
+              margin: "10px 0",
+            }}
+          >
+            {otp}
+          </Text>
+          <Text style={{ fontSize: "14px", color: "#777" }}>
             If you did not request this code, please ignore this email.
           </Text>
-        </Row>
-        {/* <Row>
           <Button
-            href={`http://localhost:3000/verify/${username}`}
-            style={{ color: '#61dafb' }}
+            href={`${process.env.NEXTAUTH_URL || process.env.VERCEL_URL}/verify/${username}`}
+            style={{
+              backgroundColor: "#4CAF50",
+              color: "#ffffff",
+              padding: "10px 20px",
+              fontSize: "16px",
+              borderRadius: "5px",
+              textDecoration: "none",
+              display: "inline-block",
+              marginTop: "15px",
+            }}
           >
-            Verify here
+            Verify Now
           </Button>
-        </Row> */}
-      </Section>
+        </Section>
+      </Container>
     </Html>
   );
 }
