@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import { MessageCard } from "@/components/MessageCard";
 import {
   AlertDialog,
@@ -189,7 +190,7 @@ export default function Dashboard() {
 
   // If no session found
   if (!session || !session.user) {
-    return <div>Please Login</div>;
+    return <Loader />;
   }
 
   // Creating a profile url to accept messages

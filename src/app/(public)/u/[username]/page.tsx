@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import { MessageCardPublic } from "@/components/MessageCardPublic";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -136,39 +137,50 @@ export default function UserPage() {
           Send message!!
         </Button>
       </div>
-      {messages.length === 0 && <p className="mt-6">No Messages to display</p>}
-      {answeredMessages.length !== 0 && (
-        <Label className="block text-3xl italic mt-6 mb-2 font-semibold">
-          Answered Questions:
-        </Label>
-      )}
-      <div className="flex flex-col gap-6">
-        {answeredMessages.length > 0 &&
-          answeredMessages.map((message) => (
-            <div
-              key={message._id!.toString()}
-              className="flex-1 min-w-[calc(50%-12px)] md:min-w-[calc(50%-12px)]"
-            >
-              <MessageCardPublic message={message} />
+      {isLoading ? (
+        <div className="pb-32">
+          <Loader />
+        </div>
+      ) : messages.length === 0 ? (
+        <p className="mt-6">No Messages to display</p>
+      ) : (
+        <div>
+          {answeredMessages.length !== 0 && (
+            <div>
+              <Label className="block text-3xl italic mt-6 mb-2 font-semibold">
+                Answered Questions:
+              </Label>
+              <div className="flex flex-col gap-6">
+                {answeredMessages.map((message) => (
+                  <div
+                    key={message._id!.toString()}
+                    className="flex-1 min-w-[calc(50%-12px)] md:min-w-[calc(50%-12px)]"
+                  >
+                    <MessageCardPublic message={message} />
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
-      </div>
-      {unansweredMessages.length !== 0 && (
-        <Label className="block text-3xl italic mt-6 mb-2 font-semibold">
-          Unanswered Questions:
-        </Label>
-      )}
-      <div className="flex flex-col gap-6">
-        {unansweredMessages.length > 0 &&
-          unansweredMessages.map((message) => (
-            <div
-              key={message._id!.toString()}
-              className="flex-1 min-w-[calc(50%-12px)] md:min-w-[calc(50%-12px)]"
-            >
-              <MessageCardPublic message={message} />
+          )}
+          {unansweredMessages.length !== 0 && (
+            <div>
+              <Label className="block text-3xl italic mt-6 mb-2 font-semibold">
+                Unanswered Questions:
+              </Label>
+              <div className="flex flex-col gap-6">
+                {unansweredMessages.map((message) => (
+                  <div
+                    key={message._id!.toString()}
+                    className="flex-1 min-w-[calc(50%-12px)] md:min-w-[calc(50%-12px)]"
+                  >
+                    <MessageCardPublic message={message} />
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

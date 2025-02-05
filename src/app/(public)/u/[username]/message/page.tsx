@@ -214,7 +214,7 @@ export default function UserQuestionPage() {
         </div>
         {/* Main form to handle messages and content */}
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="content"
@@ -240,7 +240,7 @@ export default function UserQuestionPage() {
               type="submit"
               disabled={isSubmitting || !messageContent}
             >
-              <Label>Send message now!!</Label>
+              <Label>Send</Label>
             </Button>
           </form>
         </Form>
@@ -251,9 +251,7 @@ export default function UserQuestionPage() {
             className="space-y-8"
           >
             <Card className="mt-10">
-              <CardTitle className="text-center m-8">
-                Suggest Messages
-              </CardTitle>
+              <CardTitle className="text-center m-8">Suggest Message</CardTitle>
               <CardContent>
                 <FormField
                   control={suggestMessageForm.control}
@@ -295,7 +293,7 @@ export default function UserQuestionPage() {
                   type="submit"
                   disabled={isSuggesting || !suggestedMessageContent}
                 >
-                  <Label>Suggest Messages</Label>
+                  <Label>Suggest</Label>
                 </Button>
               </div>
             </Card>
