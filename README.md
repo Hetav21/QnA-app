@@ -61,7 +61,7 @@ The project structure is organized as follows:
 ├── public/                   # Contains privacy policy and terms of service
 ├── src/                      # Website's source code, contains db schema, ui component, etc.
 │   ├── app/                  # Contains application specific code, react page templates
-│   │   ├── (app)/            # Pages related to user actions after logging in
+│   │   ├── (app)/           # Pages related to user actions after logging in
 │   │   ├── (auth)/           # Auth related pages like auth/error, sign-in, sign-up and verify
 │   │   ├── (public)/         # Public pages that do not require user authentication like sending questions and reading responses
 │   │   ├── api/              # Apis to support user actions
@@ -73,10 +73,9 @@ The project structure is organized as follows:
 │   ├── models/               # Support for llm models
 │   ├── schemas/              # Validation schemas
 │   ├── static/               # Static data and assets
-│   │   ├── prompts/          # Prompts for llm models
+│   │   ├── prompts/         # Prompts for llm models
 │   └── types/                # TypeScript type definitions
-├── styles/                   # Various CSS Files
-└── workers-ai/               # Cloudflare Workers AI configurations
+└── styles/                   # Various CSS Files
 ```
 
 ## Acknowledgement:
