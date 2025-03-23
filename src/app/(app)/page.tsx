@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { FlipWords } from "@/components/ui/flip-words";
 import { MacbookScroll } from "@/components/ui/macbook-scroll";
 import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Home() {
@@ -131,9 +132,11 @@ export default function Home() {
           </>
         )}
         <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 space-x-0 md:space-x-4">
-          <Button className="h-6 w-14 xl:h-8 xl:w-20 text-sm xl:text-lg hover:bg-white hover:text-black hover:border-2 border-2 bg-black text-white border-neutral-800">
-            Join Now
-          </Button>
+          <Link href="/sign-up">
+            <Button className="h-6 w-14 xl:h-8 xl:w-20 text-sm xl:text-lg hover:bg-white hover:text-black hover:border-2 border-2 bg-black text-white border-neutral-800">
+              Join Now
+            </Button>
+          </Link>
         </div>
       </div>
 
