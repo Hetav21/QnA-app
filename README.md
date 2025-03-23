@@ -1,6 +1,6 @@
 ## Description
 
-A messaging platform that allows users to ask questions anonymously. Users can create accounts, generate unique usernames, and interact with an intelligent response mechanism that provides contextual and helpful replies. The platform focuses on privacy, allowing individuals to seek information or advice without revealing their identity. Built with modern web technologies like Next.js, React, and powered by AI, the application offers a seamless, secure, and intuitive communication experience.
+A QnA platform that allows users to ask questions anonymously. Users can create accounts, generate unique usernames, and interact with an intelligent response mechanism that provides contextual and helpful replies. The platform focuses on privacy, allowing individuals to seek information or advice without revealing their identity. Built with modern web technologies like Next.js, React, and powered by AI, the application offers a seamless, secure, and intuitive communication experience.
 
 ## Setup
 
@@ -21,7 +21,7 @@ To set up the environment, follow these steps:
    ```
 4. Populate `.env`:
    ```sh
-   vim .env
+   $EDITOR .env
    ```
 
 ## Dev Setup
@@ -78,7 +78,7 @@ The project structure is organized as follows:
 └── styles/                   # Various CSS Files
 ```
 
-## Acknowledgement:
+## Acknowledgement
 
 <a href="https://icons8.com/icons/set/favicon">Icons8</a> for favicon <br />
 <a href="https://www.privacypolicies.com/">PrivacyPolicies</a> for privacy policy <br />

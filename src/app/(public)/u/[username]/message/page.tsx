@@ -208,7 +208,7 @@ export default function UserQuestionPage() {
         <div className="flex-grow flex flex-col items-center justify-center md:px-12 py-6 text-black">
           <section className="text-center mb-8 md:mb-12">
             <h1 className="text-xl md:text-4xl font-bold">
-              Send Questions Annonymously
+              Send Questions Anonymously
             </h1>
           </section>
         </div>
