@@ -1,14 +1,13 @@
 import {
-  Html,
-  Head,
-  Font,
-  Preview,
-  Heading,
-  Row,
-  Section,
-  Text,
   Button,
   Container,
+  Font,
+  Head,
+  Heading,
+  Html,
+  Preview,
+  Section,
+  Text,
 } from "@react-email/components";
 
 interface VerificationEmailProps {
