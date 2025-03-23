@@ -29,12 +29,10 @@ export const MacbookScroll = ({
   src,
   showGradient,
   title,
-  badge,
 }: {
   src: StaticImageData;
   showGradient?: boolean;
   title?: string | React.ReactNode;
-  badge?: React.ReactNode;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -113,7 +111,6 @@ export const MacbookScroll = ({
         {showGradient && (
           <div className="h-40 w-full absolute bottom-0 inset-x-0 bg-gradient-to-t dark:from-black from-white via-white dark:via-black to-transparent z-50"></div>
         )}
-        {badge && <div className="absolute bottom-4 left-4">{badge}</div>}
       </div>
     </div>
   );
@@ -151,13 +148,12 @@ export const Lid = ({
           transformStyle: "preserve-3d",
           transformOrigin: "top",
         }}
-        className="h-96 w-[32rem] absolute inset-0 bg-[#010101] rounded-2xl p-2"
+        className="absolute inset-0 bg-[#010101] rounded-2xl p-2"
       >
         <div className="absolute inset-0 bg-[#272729] rounded-lg" />
         <Image
           src={src}
           alt="demo"
-          fill
           className="border-2 border-black object-cover object-left-top absolute rounded-lg inset-0"
         />
       </motion.div>

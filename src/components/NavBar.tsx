@@ -1,4 +1,5 @@
 "use client";
+
 import { useToast } from "@/hooks/use-toast";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -30,52 +31,55 @@ export function NavBar() {
   }, []);
 
   return (
-    <nav className="fixed top-0 left-0 z-50 bg-transparent w-full flex justify-center">
-      <div className="border-2 border-black backdrop-blur-sm rounded-lg w-full mx-6 mt-3 px-6 py-2">
-        <div className="flex flex-col mx-4 md:flex-row justify-between items-center">
-          <Link
-            // Session based redirection
-            href={session ? "/dashboard" : "/"}
-          >
-            <Label className="text-2xl font-bold mb-4 md:mb-0">
-              Anonymous QnA
-            </Label>
-          </Link>
-          {
-            // Session based rendering of Login or Logout
-            session ? (
-              <>
-                <Button
-                  className="w-full md:w-auto"
-                  onClick={(e: React.SyntheticEvent) => {
-                    e.preventDefault();
-                    toast({
-                      title: "Logged out",
-                      description: "Logged out successfully",
-                      variant: "default",
-                    });
-                    signOut();
-                  }}
-                >
-                  <Label>Logout</Label>
-                </Button>
-              </>
-            ) : (
-              <div className="gap-3 w-full md:w-fit flex flex-col md:flex-row justify-between items-center">
-                <Link href="/sign-up">
-                  <ButtonNew text="Sign Up" />
-                </Link>
-                {path === "/" && (
-                  <Link href="/sign-in">
-                    <ButtonNew text="Sign In" />
+    <>
+      <div className="h-12"></div>
+      <nav className="fixed top-0 left-0 z-50 bg-transparent w-full flex justify-center">
+        <div className="border-2 border-black backdrop-blur-sm rounded-lg w-full mx-6 mt-3 px-6 py-2">
+          <div className="flex flex-col mx-4 md:flex-row justify-between items-center">
+            <Link
+              // Session based redirection
+              href={session ? "/dashboard" : "/"}
+            >
+              <Label className="text-2xl font-bold mb-4 md:mb-0">
+                Anonymous QnA
+              </Label>
+            </Link>
+            {
+              // Session based rendering of Login or Logout
+              session ? (
+                <>
+                  <Button
+                    className="w-full md:w-auto"
+                    onClick={(e: React.SyntheticEvent) => {
+                      e.preventDefault();
+                      toast({
+                        title: "Logged out",
+                        description: "Logged out successfully",
+                        variant: "default",
+                      });
+                      signOut();
+                    }}
+                  >
+                    <Label>Logout</Label>
+                  </Button>
+                </>
+              ) : (
+                <div className="gap-3 w-full md:w-fit flex flex-col md:flex-row justify-between items-center">
+                  <Link href="/sign-up">
+                    <ButtonNew text="Sign Up" />
                   </Link>
-                )}
-              </div>
-            )
-          }
+                  {path === "/" && (
+                    <Link href="/sign-in">
+                      <ButtonNew text="Sign In" />
+                    </Link>
+                  )}
+                </div>
+              )
+            }
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </>
   );
 }
 
