@@ -1,16 +1,8 @@
 "use client";
-import { useToast } from "@/hooks/use-toast";
-import { signUpSchema } from "@/schemas/signUpSchema";
-import { ApiResponse } from "@/types/ApiResponse";
-import { zodResolver } from "@hookform/resolvers/zod";
-import axios, { AxiosError, AxiosResponse } from "axios";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { useDebounceCallback } from "usehooks-ts";
-import { z } from "zod";
+import { Input } from "@/components/input-with-effects";
+import { Label } from "@/components/label-with-effects";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -19,11 +11,20 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import { signUpSchema } from "@/schemas/signUpSchema";
+import { ApiResponse } from "@/types/ApiResponse";
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { Loader2 } from "lucide-react";
 import { Turnstile } from "next-turnstile";
-import { Checkbox } from "@/components/ui/checkbox";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { useDebounceCallback } from "usehooks-ts";
+import { z } from "zod";
 
 const SignUpPage = () => {
   // username state to store username
@@ -38,9 +39,6 @@ const SignUpPage = () => {
   // States to block events from happening while checking username and submitting form
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Creating toasts
-  const { toast } = useToast();
 
   // To debounce the backend calls to check username availability
   const debounced = useDebounceCallback(setUsername, 500);
@@ -96,11 +94,13 @@ const SignUpPage = () => {
         data,
       );
 
-      toast({
-        title: response.data.success ? "Success" : "Error",
-        description: response.data.message,
-        variant: "default",
-      });
+      if (response.data.success) {
+        toast.success("Verification email sent successfully");
+      } else {
+        toast.warning("Error", {
+          description: response.data.message,
+        });
+      }
 
       if (response.data.success) {
         router.replace(`/verify/${username}`);
@@ -109,12 +109,8 @@ const SignUpPage = () => {
       console.error("Error in signing up user: " + err);
 
       const axiosError = err as AxiosError<ApiResponse>;
-      toast({
-        title: "Error",
-        description:
-          `${axiosError.response?.data.message} Please try again later` ||
-          "Internal server error, Please try again later",
-        variant: "destructive",
+      toast.warning("User creation failed, Please try again later", {
+        description: axiosError.response?.data.message,
       });
     } finally {
       setIsSubmitting(false);
@@ -123,12 +119,14 @@ const SignUpPage = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-zinc-200">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+      <div className="shadow-input mx-auto w-full max-w-md rounded-none bg-white p-4 md:rounded-2xl md:p-8 dark:bg-black">
         <div className="text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
-            Join Us!!
+          <h1 className="text-4xl font-bold text-neutral-800 dark:text-neutral-200">
+            Join Us
           </h1>
-          <p className="mb-4">Sign up to start your anonymous adventure</p>
+          <p className="mt-2 max-w-sm mb-4 text-md text-neutral-600 dark:text-neutral-300">
+            Sign up to start your anonymous adventure
+          </p>
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -137,28 +135,30 @@ const SignUpPage = () => {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="username"
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        // Debouncing the username updates
-                        debounced(e.target.value);
-                      }}
-                    />
-                  </FormControl>
-                  {isCheckingUsername ? (
-                    <Loader2 className="animate-spin"></Loader2>
-                  ) : (
-                    <Label
-                      className={`font-medium text-sm ${usernameMessage.success === true ? "text-green-600" : "text-red-600"}`}
-                    >
-                      {usernameMessage.message}
-                    </Label>
-                  )}
-                  <FormMessage />
+                  <LabelInputContainer>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="username"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          // Debouncing the username updates
+                          debounced(e.target.value);
+                        }}
+                      />
+                    </FormControl>
+                    {isCheckingUsername ? (
+                      <Loader2 className="animate-spin"></Loader2>
+                    ) : (
+                      <Label
+                        className={`font-medium text-sm ${usernameMessage.success === true ? "text-green-600" : "text-red-600"}`}
+                      >
+                        {usernameMessage.message}
+                      </Label>
+                    )}
+                    <FormMessage />
+                  </LabelInputContainer>
                 </FormItem>
               )}
             />
@@ -167,11 +167,13 @@ const SignUpPage = () => {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="email@example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
+                  <LabelInputContainer>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="email@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </LabelInputContainer>
                 </FormItem>
               )}
             />
@@ -180,15 +182,17 @@ const SignUpPage = () => {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="***********"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
+                  <LabelInputContainer>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="***********"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </LabelInputContainer>
                 </FormItem>
               )}
             />
@@ -196,42 +200,38 @@ const SignUpPage = () => {
               name="cfTurnstileResponse"
               render={() => (
                 <FormItem>
-                  <FormControl>
-                    <Turnstile
-                      siteKey={process.env.NEXT_PUBLIC_CF_TURNSTILE_SITE_KEY!}
-                      // @ts-ignore
-                      // cf turnstile can be flexible or normal or compact
-                      size="flexible"
-                      theme="light"
-                      retry="auto"
-                      refreshExpired="auto"
-                      // Returns dummy token in development
-                      // Enabled by default,
-                      // set to false, in case testing in production
-                      // sandbox={false}
-                      sandbox={process.env.NODE_ENV === "development"}
-                      onError={() => {
-                        toast({
-                          title: "Error",
-                          description:
+                  <LabelInputContainer>
+                    <FormControl>
+                      <Turnstile
+                        siteKey={process.env.NEXT_PUBLIC_CF_TURNSTILE_SITE_KEY!}
+                        // cf turnstile can be flexible or normal or compact
+                        // @ts-expect-error-ignore
+                        size="flexible"
+                        theme="light"
+                        retry="auto"
+                        refreshExpired="auto"
+                        // Returns dummy token in development
+                        // Enabled by default,
+                        // set to false, in case testing in production
+                        // sandbox={false}
+                        sandbox={process.env.NODE_ENV === "development"}
+                        onError={() => {
+                          toast.warning(
                             "Security check failed. Please try again.",
-                          variant: "destructive",
-                        });
-                      }}
-                      onExpire={() => {
-                        toast({
-                          title: "Error",
-                          description:
+                          );
+                        }}
+                        onExpire={() => {
+                          toast.warning(
                             "Security check expired. Please verify again.",
-                          variant: "destructive",
-                        });
-                      }}
-                      onVerify={(token) => {
-                        form.setValue("cfTurnstileResponse", token);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
+                          );
+                        }}
+                        onVerify={(token) => {
+                          form.setValue("cfTurnstileResponse", token);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </LabelInputContainer>
                 </FormItem>
               )}
             />
@@ -239,47 +239,53 @@ const SignUpPage = () => {
               name="acceptTerms"
               render={() => (
                 <FormItem>
-                  <FormControl>
-                    <Label className="flex gap-2">
-                      <Checkbox
-                        {...form.register("acceptTerms", { required: true })}
-                        className="size-5"
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            form.setValue("acceptTerms", true);
-                            toast({
-                              title: "Terms and Conditions",
-                              description:
-                                "By clicking on the checkbox, you are agreeing to our terms and conditions",
-                            });
-                          } else {
-                            form.setValue("acceptTerms", false);
-                          }
-                        }}
-                      />
-                      <div className="content-center">
-                        Accept{" "}
-                        <Link
-                          className="underline text-blue-600 visited:text-purple-600"
-                          href="/terms-of-use.html"
-                        >
-                          Terms and Conditions
-                        </Link>
-                      </div>
-                    </Label>
-                  </FormControl>
-                  <FormMessage />
+                  <LabelInputContainer>
+                    <FormControl>
+                      <Label className="flex gap-2">
+                        <Checkbox
+                          {...form.register("acceptTerms", { required: true })}
+                          className="size-5"
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              form.setValue("acceptTerms", true);
+                              toast.warning(
+                                "Please read and accept the terms and conditions carefully",
+                              );
+                            } else {
+                              form.setValue("acceptTerms", false);
+                            }
+                          }}
+                        />
+                        <div className="content-center">
+                          Accept{" "}
+                          <Link
+                            className="underline text-blue-600 visited:text-purple-600"
+                            href="/terms-of-use.html"
+                          >
+                            Terms and Conditions
+                          </Link>
+                        </div>
+                      </Label>
+                    </FormControl>
+                    <FormMessage />
+                  </LabelInputContainer>
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={isSubmitting}>
+
+            <Button
+              className="group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-black to-neutral-600 font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:bg-zinc-800 dark:from-zinc-900 dark:to-zinc-900 dark:shadow-[0px_1px_0px_0px_#27272a_inset,0px_-1px_0px_0px_#27272a_inset]"
+              type="submit"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin">
                   Please Wait
                 </Loader2>
               ) : (
-                "Sign up"
+                <div>Sign up &rarr;</div>
               )}
+              <BottomGradient />
             </Button>
           </form>
         </Form>
@@ -292,6 +298,29 @@ const SignUpPage = () => {
           </p>
         </div>
       </div>
+    </div>
+  );
+};
+
+const BottomGradient = () => {
+  return (
+    <>
+      <span className="absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/btn:opacity-100" />
+      <span className="absolute inset-x-10 -bottom-px mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/btn:opacity-100" />
+    </>
+  );
+};
+
+const LabelInputContainer = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
+  return (
+    <div className={cn("flex w-full flex-col space-y-2", className)}>
+      {children}
     </div>
   );
 };
